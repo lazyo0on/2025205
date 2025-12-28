@@ -259,7 +259,7 @@
                 <!-- playsinline 추가: 모바일에서 전체화면 강제 전환 방지 -->
                 <iframe 
                     id="youtube-frame"
-                    src="https://www.youtube.com/embed/FEI_imQ1Eaw?playsinline=1" 
+                    src="" 
                     title="YouTube video player" 
                     frameborder="0" 
                     allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -298,7 +298,7 @@
             // 유튜브 주소 (embed + playsinline)
             YOUTUBE_URL: "https://www.youtube.com/embed/FEI_imQ1Eaw?playsinline=1",
 
-            // [수정] 오타 수정 완료 ("" -> ")
+            // [수정] 오타 수정 완료
             TALKS: [
                 "안녕?", "오늘 급식 뭐지?", "숙제 했어?", 
                 "오늘 시간표 뭐야?", "체육 시간 기다려진다", 
@@ -566,9 +566,9 @@
             videoBox.style.display = 'flex';
             diaryBox.style.display = 'none';
             modalOverlay.style.display = 'flex';
-            if(!youtubeFrame.src) {
-                youtubeFrame.src = CONFIG.YOUTUBE_URL;
-            }
+            
+            // [수정] 무조건 URL을 다시 설정해서 영상을 불러옵니다.
+            youtubeFrame.src = CONFIG.YOUTUBE_URL;
         }
 
         window.openDiary = function() {
@@ -639,4 +639,3 @@
     </script>
 </body>
 </html>
-
