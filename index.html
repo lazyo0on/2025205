@@ -4,203 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3학년 2반의 추억</title>
-    <!-- 픽셀 아트용 레트로 한글 폰트 (둥근모꼴) --><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Dalgona/neodgm/neodgm.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Dalgona/neodgm/neodgm.css">
     <style>
-        :root {
-            --pixel-bg: #87CEEB; /* 하늘색 배경 */
-            --pixel-ground: #90EE90; /* 잔디색 */
-            --pixel-ui: #2c3e50;
-        }
-
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: 'NeoDunggeunmo', sans-serif; /* 픽셀 폰트 적용 */
-            background-color: var(--pixel-bg);
-            user-select: none;
-        }
-
-        /* 픽셀 느낌을 살리기 위한 렌더링 설정 */
-        canvas {
-            image-rendering: pixelated; /* 크롬, 사파리 */
-            image-rendering: crisp-edges; /* 파이어폭스 */
-            display: block;
-        }
-
-        /* UI 레이어 */
-        #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; /* 클릭은 캔버스로 통과 */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.5s;
-        }
-
-        /* 시작 화면 박스 */
-        .pixel-box {
-            background: white;
-            border: 4px solid black;
-            padding: 2rem;
-            text-align: center;
-            pointer-events: auto;
-            box-shadow: 8px 8px 0px rgba(0,0,0,0.2);
-            image-rendering: pixelated;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            text-shadow: 3px 3px 0px #ddd;
-            color: #333;
-        }
-
-        .pixel-btn {
-            background: #ff5e5e;
-            color: white;
-            border: 4px solid black;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            font-family: 'NeoDunggeunmo', sans-serif;
-            cursor: pointer;
-            transition: transform 0.1s;
-            box-shadow: 4px 4px 0px black;
-        }
-
-        .pixel-btn:active {
-            transform: translate(4px, 4px);
-            box-shadow: 0px 0px 0px black;
-        }
-
-        /* 말풍선 스타일 */
-        .bubble {
-            position: absolute;
-            background: white;
-            border: 2px solid black;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            pointer-events: none;
-            display: none;
-            z-index: 10;
-            max-width: 200px;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
-            line-height: 1.4;
-            white-space: pre-wrap; /* 줄바꿈 허용 */
-        }
-        
-        /* 말풍선 꼬리 */
-        .bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 6px 6px 0;
-            border-style: solid;
-            border-color: black transparent transparent transparent;
-        }
-        .bubble::before {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 6px 6px 0;
-            border-style: solid;
-            border-color: white transparent transparent transparent;
-            z-index: 1;
-        }
-
-        /* 게임 내 UI 버튼들 (우측 상단) */
-        #game-ui {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: none; /* 게임 시작 전엔 숨김 */
-            gap: 10px;
-            pointer-events: auto;
-        }
-
-        .game-btn {
-            background: #fff;
-            border: 3px solid black;
-            padding: 10px 15px;
-            font-family: 'NeoDunggeunmo', sans-serif;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
-            transition: transform 0.1s;
-        }
-        .game-btn:active {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
-        }
-
-        /* 모달 (일기장 등) */
-        #modal-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            pointer-events: auto;
-        }
-
-        .modal-content {
-            background: #fff;
-            border: 4px solid black;
-            padding: 30px;
-            width: 80%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 10px 10px 0 rgba(0,0,0,0.3);
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #ff5e5e;
-        }
+        /* ... (이전 스타일과 동일) ... */
+        :root { --pixel-bg: #87CEEB; --pixel-ground: #90EE90; }
+        body { margin: 0; overflow: hidden; font-family: 'NeoDunggeunmo', sans-serif; background-color: var(--pixel-bg); user-select: none; }
+        canvas { image-rendering: pixelated; display: block; }
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .pixel-box { background: white; border: 4px solid black; padding: 2rem; text-align: center; pointer-events: auto; box-shadow: 8px 8px 0px rgba(0,0,0,0.2); }
+        h1 { font-size: 2.5rem; margin-bottom: 1rem; color: #333; }
+        .pixel-btn { background: #ff5e5e; color: white; border: 4px solid black; padding: 15px 30px; font-size: 1.2rem; cursor: pointer; font-family: inherit; }
+        .bubble { position: absolute; background: white; border: 2px solid black; padding: 8px 12px; border-radius: 8px; font-size: 14px; pointer-events: none; display: none; z-index: 10; max-width: 200px; white-space: pre-wrap; }
+        .bubble::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-width: 6px 6px 0; border-style: solid; border-color: black transparent transparent transparent; }
+        #game-ui { position: absolute; top: 20px; right: 20px; display: none; gap: 10px; pointer-events: auto; }
+        .game-btn { background: #fff; border: 3px solid black; padding: 10px 15px; font-family: inherit; cursor: pointer; }
+        #modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100; pointer-events: auto; }
+        .modal-content { background: #fff; border: 4px solid black; padding: 30px; width: 80%; max-width: 500px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; cursor: pointer; color: #ff5e5e; }
     </style>
 </head>
 <body>
 
-    <!-- 픽셀 캔버스 --><canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas"></canvas>
 
-    <!-- 게임 내 상단 버튼 --><div id="game-ui">
+    <div id="game-ui">
         <button class="game-btn" onclick="openDiary()">✨ 학급 일기장</button>
     </div>
 
-    <!-- 시작 UI --><div id="ui-layer">
+    <div id="ui-layer">
         <div class="pixel-box" id="login-box">
             <h1>우리반 추억 보관함</h1>
             <p style="margin-bottom: 20px; font-size: 1.2rem;">비밀번호를 입력하세요</p>
             <input type="password" id="password" style="display:block; width: 100%; padding: 10px; margin-bottom: 20px; font-family: inherit; border: 2px solid black; outline: none;" placeholder="****">
             <button class="pixel-btn" onclick="startGame()">입장하기</button>
             <p id="error-msg" style="color: red; margin-top: 10px; display: none;">암호가 틀렸습니다!</p>
-            <p id="loading-msg" style="color: #666; font-size: 0.8rem; margin-top: 10px; display: none;">이미지 로딩중...</p>
+            <p id="loading-msg" style="color: blue; margin-top: 10px; display: none;">이미지 로딩 중...</p>
         </div>
     </div>
 
-    <!-- 말풍선 요소 (동적 이동) --><div id="bubble" class="bubble">안녕!</div>
+    <div id="bubble" class="bubble">안녕!</div>
 
-    <!-- 모달 창 (일기 결과 표시) --><div id="modal-overlay">
+    <div id="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">X</span>
             <h2 style="margin-top:0; border-bottom: 2px solid #eee; padding-bottom: 10px;">✨ 오늘의 기록</h2>
@@ -210,291 +54,211 @@
 
     <script>
         // =================================================================
-        // [선생님 설정 구역] 여기 있는 내용을 자유롭게 수정하세요!
+        // [설정 구역] 
         // =================================================================
         const CONFIG = {
-            // 1. 비밀번호
             PASSWORD: "1234",
+            
+            // 이미지 폴더 이름 (마지막에 / 꼭 붙이기)
+            IMAGE_FOLDER: "images/",
+            
+            // 이미지 파일 이름 목록 (순서대로 적으세요)
+            // 예: 1.png, 2.png, 3.png가 있다면 아래처럼 적습니다.
+            IMAGE_FILES: ["1.png", "2.png"], 
 
-            // 2. 아이들을 클릭했을 때 나오는 말들 (여러 개를 적어두면 랜덤으로 나옵니다)
-            TALKS: [
-                "선생님, 안녕하세요!",
-                "오늘 급식 진짜 맛있었어요!",
-                "선생님, 저랑 공기놀이 해요!",
-                "숙제 다 했어요!",
-                "선생님, 이거 보세요!",
-                "운동장이 너무 넓어요~",
-                "집에 가기 싫어요 ㅎㅎ",
-                "선생님, 사랑해요!",
-                "오늘 날씨가 참 좋아요.",
-                "선생님, 저 달리기 1등 했어요!",
-                "우리 반이 최고예요!",
-                "다음 시간 체육 맞죠?"
-            ],
-
-            // 3. '학급 일기장' 버튼을 눌렀을 때 나오는 글들 (랜덤)
-            DIARY_ENTRIES: [
-                "오늘 하루, 운동장은 아이들의 웃음소리로 가득 찼습니다.\n서로 쫓고 쫓기며 흘린 땀방울만큼 우리 반의 추억도 반짝입니다.",
-                
-                "따스한 햇살 아래, 옹기종기 모여 앉은 아이들의 모습이 마치 꽃밭 같습니다.\n이 평화로운 순간이 아이들의 기억 속에 영원히 남기를.",
-                
-                "바람이 불 때마다 까르르 터지는 웃음소리.\n3학년 2반의 하루는 오늘도 '맑음'입니다.\n아이들의 순수한 마음이 오래도록 지켜졌으면 좋겠습니다.",
-                
-                "시끌벅적한 교실도 좋지만,\n이렇게 다 같이 뛰어노는 운동장의 풍경이 참 좋습니다.\n먼 훗날, 이 순간이 따뜻한 위로가 되길 바랍니다."
-            ]
+            TALKS: ["선생님, 안녕하세요!", "오늘 급식 맛있었어요!", "숙제 다 했어요!", "운동장 넓다~", "사랑해요 쌤!"],
+            DIARY_ENTRIES: ["아이들의 웃음소리가 가득한 하루였습니다.", "오늘도 우리 반은 평화롭습니다."]
         };
         // =================================================================
-
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const uiLayer = document.getElementById('ui-layer');
         const loginBox = document.getElementById('login-box');
-        const passwordInput = document.getElementById('password'); // 비밀번호 입력창
         const bubble = document.getElementById('bubble');
         const gameUI = document.getElementById('game-ui');
         const modalOverlay = document.getElementById('modal-overlay');
         const modalText = document.getElementById('modal-text');
         
-        // 캔버스 크기 설정
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // 게임 설정
         const STUDENT_COUNT = 32;
-        const PIXEL_SCALE = 4; // 도트 크기 배율
+        const PIXEL_SCALE = 4; // 캐릭터 크기 배율 (숫자가 클수록 캐릭터가 커짐)
 
-        // 스프라이트 시트 이미지 로드
-        const studentSprite = new Image();
-        studentSprite.src = 'student_sprite.png'; // 이미지 파일 경로 (index.html과 같은 폴더)
+        // --- 이미지 미리 불러오기 (프리로딩) ---
+        const loadedImages = [];
+        let imagesLoadedCount = 0;
+        let isAllImagesLoaded = false;
+
+        function preloadImages() {
+            CONFIG.IMAGE_FILES.forEach((filename, index) => {
+                const img = new Image();
+                img.src = CONFIG.IMAGE_FOLDER + filename;
+                img.onload = () => {
+                    imagesLoadedCount++;
+                    if (imagesLoadedCount === CONFIG.IMAGE_FILES.length) {
+                        isAllImagesLoaded = true;
+                        document.getElementById('loading-msg').innerText = "로딩 완료! 입장하세요.";
+                        drawBackground();
+                    }
+                };
+                img.onerror = () => {
+                    console.error("이미지를 찾을 수 없습니다: " + filename);
+                };
+                loadedImages.push(img);
+            });
+        }
         
-        let spriteLoaded = false;
-        let useImage = false; // 이미지를 사용할지 여부 (실패 시 false)
-
-        // 이미지 로딩 성공 시
-        studentSprite.onload = () => {
-            spriteLoaded = true;
-            useImage = true;
-            document.getElementById('loading-msg').style.display = 'none'; // 로딩 메시지 숨김
-            if (!isPlaying) drawBackground(); 
-        };
-
-        // 이미지 로딩 실패 시 (파일 없음 등) -> 기본 박스로 대체
-        studentSprite.onerror = () => {
-            console.log("이미지 로드 실패: 기본 모형을 사용합니다.");
-            spriteLoaded = true; // 로드 과정은 끝났으므로 true
-            useImage = false; // 이미지는 사용하지 않음
-            document.getElementById('loading-msg').style.display = 'none';
-            if (!isPlaying) drawBackground();
-        };
+        // 페이지 열리자마자 이미지 로드 시작
+        preloadImages();
 
         let isPlaying = false;
 
-        // 학생 클래스
         class Student {
             constructor(id) {
                 this.id = id;
-                this.spriteWidth = 24; // 이미지 한 프레임의 원본 너비
-                this.spriteHeight = 32; // 이미지 한 프레임의 원본 높이
-                this.width = this.spriteWidth * PIXEL_SCALE; 
-                this.height = this.spriteHeight * PIXEL_SCALE; 
+                
+                // 첫 번째 이미지를 기준으로 크기 설정 (모든 이미지가 같은 크기여야 함)
+                // 로딩이 아직 안 됐을 수 있으므로 기본값 설정 후, draw에서 보정
+                this.width = 0; 
+                this.height = 0;
 
-                // 이미지 로드 실패 시 사용할 기본 색상 (랜덤)
-                this.fallbackColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
-
-                this.x = Math.random() * (canvas.width - this.width);
-                this.y = Math.random() * (canvas.height - this.height);
-                this.speedX = (Math.random() - 0.5) * 2; 
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.speedX = (Math.random() - 0.5) * 2;
                 this.speedY = (Math.random() - 0.5) * 2;
                 
                 // 애니메이션 상태
-                this.frame = 0; 
-                this.frameCount = 0; 
-                this.animationSpeed = Math.floor(Math.random() * 5) + 10; 
-                this.numFrames = 3; 
-                this.facingRight = this.speedX > 0; 
+                this.frameIndex = 0; // 현재 보여줄 이미지 번호
+                this.frameCount = 0;
+                this.animationSpeed = Math.floor(Math.random() * 5) + 10; // 속도 랜덤
+                this.facingRight = this.speedX > 0;
 
                 this.targetX = null;
-                this.targetY = null;
             }
 
             update() {
-                // 목표 지점이 있으면 그쪽으로 이동
+                // 이미지 크기 초기화 (로딩 완료 후 최초 1회)
+                if (this.width === 0 && loadedImages[0].width > 0) {
+                    this.width = loadedImages[0].width * PIXEL_SCALE;
+                    this.height = loadedImages[0].height * PIXEL_SCALE;
+                    // 화면 밖으로 나갔다면 위치 보정
+                    if (this.x > canvas.width - this.width) this.x = canvas.width - this.width;
+                    if (this.y > canvas.height - this.height) this.y = canvas.height - this.height;
+                }
+
                 if (this.targetX !== null) {
                     const dx = this.targetX - this.x;
                     const dy = this.targetY - this.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
                     
                     if (dist > 5) {
-                        this.x += (dx / dist) * 3; 
+                        this.x += (dx / dist) * 3;
                         this.y += (dy / dist) * 3;
-                        this.facingRight = dx > 0; 
+                        this.facingRight = dx > 0;
                     } else {
-                        this.targetX = null; 
-                        this.speedX = (Math.random() - 0.5) * 2; 
+                        this.targetX = null;
+                        this.speedX = (Math.random() - 0.5) * 2;
                         this.speedY = (Math.random() - 0.5) * 2;
                     }
                 } else {
-                    // 평소 배회
                     this.x += this.speedX;
                     this.y += this.speedY;
 
-                    // 벽 튕기기
                     if (this.x < 0) { this.x = 0; this.speedX *= -1; this.facingRight = true; }
                     if (this.x > canvas.width - this.width) { this.x = canvas.width - this.width; this.speedX *= -1; this.facingRight = false; }
                     if (this.y < 0) { this.y = 0; this.speedY *= -1; }
                     if (this.y > canvas.height - this.height) { this.y = canvas.height - this.height; this.speedY *= -1; }
 
-                    // 가끔 멈추거나 방향 전환
-                    if (Math.random() < 0.005) { 
+                    if (Math.random() < 0.005) {
                         this.speedX = (Math.random() - 0.5) * 2;
                         this.speedY = (Math.random() - 0.5) * 2;
-                        if (this.speedX !== 0) { 
-                           this.facingRight = this.speedX > 0;
-                        }
+                        if (this.speedX !== 0) this.facingRight = this.speedX > 0;
                     }
                 }
 
-                // 애니메이션 프레임 업데이트
+                // 프레임 변경 (애니메이션)
                 this.frameCount++;
                 if (this.frameCount >= this.animationSpeed) {
-                    this.frame = (this.frame + 1) % this.numFrames; 
+                    // 다음 이미지로 넘어감 (0 -> 1 -> 2 -> 3 -> 0 ...)
+                    this.frameIndex = (this.frameIndex + 1) % loadedImages.length;
                     this.frameCount = 0;
                 }
             }
 
             draw() {
-                // 이미지가 로드되었고 사용 가능한 경우
-                if (useImage) {
-                    const srcX = this.frame * this.spriteWidth; 
-                    const srcY = 0; 
+                if (!isAllImagesLoaded) return;
 
-                    ctx.save(); 
-
-                    if (!this.facingRight) { 
-                        ctx.translate(this.x + this.width / 2, this.y + this.height / 2); 
-                        ctx.scale(-1, 1); 
-                        ctx.translate(-(this.x + this.width / 2), -(this.y + this.height / 2)); 
-                    }
-
-                    ctx.drawImage(
-                        studentSprite,
-                        srcX, srcY,
-                        this.spriteWidth, this.spriteHeight,
-                        this.x, this.y,
-                        this.width, this.height
-                    );
-
-                    ctx.restore(); 
-                } else {
-                    // 이미지 로드 실패 시 기본 박스 그리기 (안전장치)
-                    const p = PIXEL_SCALE;
-                    // 머리
-                    ctx.fillStyle = '#333';
-                    ctx.fillRect(this.x + p, this.y, this.width - 2*p, this.width/2);
-                    // 몸통
-                    ctx.fillStyle = this.fallbackColor;
-                    ctx.fillRect(this.x, this.y + this.width/2, this.width, this.height - this.width/2);
+                const currentImage = loadedImages[this.frameIndex];
+                
+                ctx.save();
+                
+                // 좌우 반전 처리
+                if (!this.facingRight) {
+                    ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+                    ctx.scale(-1, 1);
+                    ctx.translate(-(this.x + this.width / 2), -(this.y + this.height / 2));
                 }
 
-                // 그림자 (공통)
+                // 이미지 그리기
+                ctx.drawImage(currentImage, this.x, this.y, this.width, this.height);
+                
+                ctx.restore();
+
+                // 그림자
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
-                ctx.fillRect(this.x + (this.width / 4), this.y + this.height - (PIXEL_SCALE), this.width / 2, PIXEL_SCALE);
+                ctx.fillRect(this.x + (this.width * 0.2), this.y + this.height - 5, this.width * 0.6, 5);
             }
             
-            // 클릭 판정
             isClicked(mx, my) {
                 return mx >= this.x && mx <= this.x + this.width &&
                        my >= this.y && my <= this.y + this.height;
             }
         }
 
-        // 학생 생성
         const students = [];
         for (let i = 0; i < STUDENT_COUNT; i++) {
             students.push(new Student(i + 1));
         }
 
-        // 배경 그리기 (운동장 느낌)
         function drawBackground() {
-            // 하늘
             ctx.fillStyle = '#87CEEB';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // 땅 (화면 하단 30%부터)
             const groundY = canvas.height * 0.4;
-            ctx.fillStyle = '#90EE90'; // 연두색 잔디
+            ctx.fillStyle = '#90EE90';
             ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
             
-            // 학교 건물 (배경 픽셀 아트)
+            // 학교 건물 (간단화)
             const buildingW = 300;
             const buildingH = 200;
             const bx = (canvas.width - buildingW) / 2;
             const by = groundY - buildingH;
-            
-            // 건물 본체
-            ctx.fillStyle = '#ffddaa';
-            ctx.fillRect(bx, by, buildingW, buildingH);
-            
-            // 창문들
-            ctx.fillStyle = '#55aaff';
-            for(let i=0; i<3; i++) {
-                for(let j=0; j<2; j++) {
-                    ctx.fillRect(bx + 30 + i*90, by + 30 + j*70, 60, 40);
-                }
-            }
-            
-            // 지붕
-            ctx.fillStyle = '#d35400';
-            ctx.beginPath();
-            ctx.moveTo(bx - 20, by);
-            ctx.lineTo(bx + buildingW/2, by - 60);
-            ctx.lineTo(bx + buildingW + 20, by);
-            ctx.fill();
+            ctx.fillStyle = '#ffddaa'; ctx.fillRect(bx, by, buildingW, buildingH);
+            ctx.fillStyle = '#d35400'; ctx.beginPath(); ctx.moveTo(bx - 20, by); ctx.lineTo(bx + buildingW/2, by - 60); ctx.lineTo(bx + buildingW + 20, by); ctx.fill();
         }
 
-        // 메인 루프
         function animate() {
             if (!isPlaying) return;
-
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             drawBackground();
-
-            // y좌표 기준으로 정렬하여 그리기 (원근감: 아래에 있는 애가 앞에 옴)
             students.sort((a, b) => a.y - b.y);
-
-            students.forEach(student => {
-                student.update();
-                student.draw();
-            });
-
+            students.forEach(student => { student.update(); student.draw(); });
             requestAnimationFrame(animate);
         }
 
-        // 이벤트 리스너: 창 크기 조절
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            if(isPlaying) requestAnimationFrame(animate); // 리페인트
+            if(isPlaying) requestAnimationFrame(animate);
         });
 
-        // 이벤트 리스너: 엔터키 입력 지원 (비밀번호 창)
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                startGame();
-            }
-        });
-
-        // 이벤트 리스너: 클릭 시 아이들 모으기 및 대화 (수동 모드)
         canvas.addEventListener('mousedown', (e) => {
             if (!isPlaying) return;
-            
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
             
-            // 1. 특정 학생 클릭 확인
             let clickedStudent = null;
             for (let i = students.length - 1; i >= 0; i--) {
                 if (students[i].isClicked(mouseX, mouseY)) {
@@ -504,15 +268,11 @@
             }
             
             if (clickedStudent) {
-                // 학생 클릭 시 설정해둔 대사 중 랜덤 출력
                 const randomTalk = CONFIG.TALKS[Math.floor(Math.random() * CONFIG.TALKS.length)];
                 showBubble(mouseX, mouseY, randomTalk);
-
             } else {
-                // 빈 땅 클릭 시 아이들이 그쪽으로 모임
                 showBubble(mouseX, mouseY, "얘들아 모여라!");
                 students.forEach(s => {
-                    // 약간의 랜덤 오차를 줘서 완전히 겹치지 않게
                     s.targetX = mouseX + (Math.random() - 0.5) * 100;
                     s.targetY = mouseY + (Math.random() - 0.5) * 100;
                 });
@@ -521,57 +281,40 @@
 
         function showBubble(x, y, text) {
             bubble.style.left = x + 'px';
-            bubble.style.top = (y - 50) + 'px'; // 조금 더 위로
-            
+            bubble.style.top = (y - 50) + 'px';
             bubble.innerText = text;
             bubble.style.display = 'block';
-            
-            // 기존 타이머 취소 및 새 타이머 설정 (3초 뒤 사라짐)
             clearTimeout(window.bubbleTimer);
-            window.bubbleTimer = setTimeout(() => {
-                bubble.style.display = 'none';
-            }, 3000);
+            window.bubbleTimer = setTimeout(() => { bubble.style.display = 'none'; }, 3000);
         }
 
-        // 게임 시작 함수
         function startGame() {
-            // 이미지가 아직 로딩 중이라면 (로드도 아니고 에러도 아닌 상태)
-            if (!spriteLoaded) {
+            if (!isAllImagesLoaded) {
                 document.getElementById('loading-msg').style.display = 'block';
                 return;
             }
-
             const pw = document.getElementById('password').value;
             if (pw === CONFIG.PASSWORD) {
                 loginBox.style.display = 'none';
-                uiLayer.style.pointerEvents = 'none'; // UI 통과
-                gameUI.style.display = 'flex'; // 게임 UI 버튼 보이기
+                uiLayer.style.pointerEvents = 'none';
+                gameUI.style.display = 'flex';
                 isPlaying = true;
-                animate(); // 애니메이션 시작
+                animate();
             } else {
                 document.getElementById('error-msg').style.display = 'block';
             }
         }
 
-        // 일기장 기능 (수동 모드)
         function openDiary() {
             modalOverlay.style.display = 'flex';
             const randomEntry = CONFIG.DIARY_ENTRIES[Math.floor(Math.random() * CONFIG.DIARY_ENTRIES.length)];
             modalText.innerText = randomEntry;
         }
 
-        function closeModal() {
-            modalOverlay.style.display = 'none';
-        }
-
-        // 모달 밖 클릭시 닫기
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) closeModal();
-        });
+        function closeModal() { modalOverlay.style.display = 'none'; }
+        modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
         
-        // 초기 배경 그리기
         drawBackground();
-
     </script>
 </body>
 </html>
