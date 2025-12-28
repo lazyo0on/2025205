@@ -84,7 +84,7 @@
         }
         .start-btn:active { transform: scale(0.95); }
 
-        /* 게임 내 UI (스마트폰 버튼) */
+        /* 게임 내 UI (버튼들) */
         #game-ui {
             position: absolute;
             top: 20px; right: 20px;
@@ -110,7 +110,7 @@
         }
         .icon-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
 
-        /* 비디오/일기장 모달창 */
+        /* 모달 오버레이 (공통) */
         #modal-overlay {
             position: absolute;
             top: 0; left: 0;
@@ -123,15 +123,15 @@
             pointer-events: auto;
         }
 
-        /* 스마트폰 모양의 창 */
+        /* 1. 영상 모달 (스마트폰 모양) */
         .phone-modal {
             width: 90%;
-            max-width: 600px; /* 영상 보기 좋게 조금 더 넓힘 */
+            max-width: 600px;
             background: #111;
             border-radius: 20px;
             border: 4px solid #444;
             overflow: hidden;
-            display: flex;
+            display: none; /* 기본 숨김 */
             flex-direction: column;
             box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
@@ -145,10 +145,35 @@
         
         .video-container iframe {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+
+        /* 2. 일기장 모달 (노트 모양) */
+        .diary-modal {
+            width: 85%;
+            max-width: 500px;
+            background: #fff;
+            border: 4px solid #333;
+            border-radius: 5px;
+            padding: 30px;
+            display: none; /* 기본 숨김 */
+            flex-direction: column;
+            box-shadow: 10px 10px 0 rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .diary-title {
+            font-size: 1.5rem;
+            border-bottom: 2px dashed #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        .diary-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            min-height: 150px;
         }
 
         .close-modal-btn {
@@ -159,6 +184,36 @@
             font-family: inherit;
             font-size: 1.2rem;
             cursor: pointer;
+            margin-top: auto; /* 하단 배치 */
+        }
+
+        /* [추가] 말풍선 스타일 */
+        .bubble {
+            position: absolute;
+            background: white;
+            border: 2px solid black;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            pointer-events: none;
+            display: none;
+            z-index: 50;
+            max-width: 220px;
+            white-space: pre-wrap;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+            text-align: center;
+            transform: translate(-50%, -100%); /* 좌표 기준을 하단 중앙으로 */
+            margin-top: -15px; /* 캐릭터 머리 위로 띄우기 */
+        }
+        .bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 8px 8px 0;
+            border-style: solid;
+            border-color: black transparent transparent transparent;
         }
 
         #loading-msg { color: #555; font-size: 0.9rem; margin-top: 10px; display: none; }
@@ -171,7 +226,8 @@
 
     <!-- 게임 내 UI -->
     <div id="game-ui">
-        <div class="icon-btn" onclick="openPhoneModal()">📺</div>
+        <div class="icon-btn" onclick="openDiary()">📖</div>
+        <div class="icon-btn" onclick="openVideo()">📺</div>
     </div>
 
     <!-- 로그인 UI -->
@@ -190,18 +246,18 @@
         </div>
     </div>
 
-    <!-- 영상 모달창 -->
+    <!-- 말풍선 (동적 위치) -->
+    <div id="bubble" class="bubble">안녕!</div>
+
+    <!-- 통합 모달 오버레이 -->
     <div id="modal-overlay">
-        <div class="phone-modal">
+        
+        <!-- 1. 영상 창 -->
+        <div id="video-box" class="phone-modal">
             <div class="video-container">
-                <!-- 
-                   [중요] 유튜브 에러 해결 방법:
-                   src 주소에 'watch?v=' 대신 'embed/'를 써야 합니다.
-                   예: https://www.youtube.com/embed/영상ID값
-                -->
                 <iframe 
                     id="youtube-frame"
-                    src="https://www.youtube.com/embed/FEI_imQ1Eaw" 
+                    src="" 
                     title="YouTube video player" 
                     frameborder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -210,6 +266,14 @@
             </div>
             <button class="close-modal-btn" onclick="closeModal()">닫기</button>
         </div>
+
+        <!-- 2. 일기장 창 -->
+        <div id="diary-box" class="diary-modal">
+            <div class="diary-title">✨ 학급 일기장</div>
+            <div id="diary-text" class="diary-content">일기 내용을 불러오는 중...</div>
+            <button class="close-modal-btn" style="margin-top: 20px;" onclick="closeModal()">덮기</button>
+        </div>
+
     </div>
 
     <script>
@@ -220,20 +284,33 @@
             PASSWORD: "1234",
             IMAGE_FOLDER: "images/",
             
-            // [중요] 걷는 애니메이션을 위해 3장씩 연결합니다.
-            // 파일명 예시: boy1.png, boy2.png, boy3.png 가 폴더에 있어야 함
+            // 이미지 프레임 설정
             MALE_FRAMES: ["boy1.png", "boy2.png", "boy3.png"],
             FEMALE_FRAMES: ["girl1.png", "girl2.png", "girl3.png"],
             
-            // 배경 이미지 (없으면 색상 대체됨)
             BG_IMAGES: {
                 DAY: "bg_day.png",
                 SUNSET: "bg_sunset.png",
                 NIGHT: "bg_night.png"
             },
 
-            // 유튜브 영상 주소 (반드시 embed가 포함된 주소여야 함)
-            YOUTUBE_URL: "https://www.youtube.com/embed/FEI_imQ1Eaw" 
+            // 유튜브 주소 (embed)
+            YOUTUBE_URL: "https://www.youtube.com/embed/FEI_imQ1Eaw",
+
+            // [추가] 말풍선 대사 목록
+            TALKS: [
+                "안녕?", "오늘 급식 뭐지?", "숙제 했어?", 
+                "매점 가자!", "체육 시간 기다려진다", 
+                "선생님 안녕하세요!", "우리 반 최고!", "졸려..."
+            ],
+
+            // [추가] 일기장 내용
+            DIARY_ENTRIES: [
+                "3월 2일\n새로운 친구들을 만났다. 다들 착해 보인다.",
+                "5월 15일\n체육대회 예선전! 우리 반이 1등을 했다!",
+                "10월 20일\n현장체험학습을 다녀왔다. 사진을 많이 찍었다.",
+                "12월 24일\n크리스마스 이브 파티를 했다. 피자가 맛있었다."
+            ]
         };
 
         const canvas = document.getElementById('gameCanvas');
@@ -242,21 +319,24 @@
         const loginBox = document.getElementById('login-box');
         const gameUI = document.getElementById('game-ui');
         const modalOverlay = document.getElementById('modal-overlay');
+        const bubble = document.getElementById('bubble');
+        
+        // 모달 요소들
+        const videoBox = document.getElementById('video-box');
+        const diaryBox = document.getElementById('diary-box');
+        const diaryText = document.getElementById('diary-text');
+        const youtubeFrame = document.getElementById('youtube-frame');
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // [수정] 학생 수 설정 (남자 17명, 여자 15명)
+        // 학생 수
         const MALE_COUNT = 17; 
         const FEMALE_COUNT = 15;
-        const CHAR_HEIGHT = 60; // 캐릭터 크기
+        const CHAR_HEIGHT = 60; 
 
         // --- 리소스 관리 ---
-        const assets = {
-            male: [],   // 남자 걷는 동작 프레임들
-            female: [], // 여자 걷는 동작 프레임들
-            bg: {}
-        };
+        const assets = { male: [], female: [], bg: {} };
         let loadedCount = 0;
         let totalAssets = 0;
         let isLoaded = false;
@@ -268,7 +348,7 @@
             
             img.onload = () => handleLoad();
             img.onerror = () => {
-                console.warn("이미지 로드 실패 (무시하고 진행):", src);
+                console.warn("이미지 로드 실패:", src);
                 handleLoad(); 
             };
             
@@ -290,12 +370,9 @@
         }
 
         function init() {
-            // 남자 애니메이션 프레임 로드 (순서대로)
             CONFIG.MALE_FRAMES.forEach(src => loadAsset(src, 'male'));
-            // 여자 애니메이션 프레임 로드
             CONFIG.FEMALE_FRAMES.forEach(src => loadAsset(src, 'female'));
             
-            // 배경 로드
             loadAsset(CONFIG.BG_IMAGES.DAY, 'bg', 'day');
             loadAsset(CONFIG.BG_IMAGES.SUNSET, 'bg', 'sunset');
             loadAsset(CONFIG.BG_IMAGES.NIGHT, 'bg', 'night');
@@ -307,64 +384,57 @@
         class Student {
             constructor(gender) {
                 this.gender = gender;
-                // [수정] 단일 이미지가 아니라 이미지 배열(프레임)을 가짐
+                // 여자 캐릭터가 안 나오는 경우를 대비해 배열 할당 재확인
                 this.frames = (gender === 'male') ? assets.male : assets.female;
                 
                 this.width = 0; 
                 this.height = CHAR_HEIGHT;
 
-                // 위치 초기화
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 
-                // 이동 속도
-                this.speedBase = 1 + Math.random(); // 속도 랜덤
+                // [수정] 이동 속도를 기존의 1/3 수준으로 감소 (0.33배)
+                this.speedBase = (1 + Math.random()) * 0.33; 
                 this.vx = (Math.random() - 0.5) * this.speedBase;
                 this.vy = (Math.random() - 0.5) * this.speedBase;
 
-                // 목표 지점 (터치 시 이동용)
                 this.targetX = null;
                 this.targetY = null;
 
                 this.facingRight = Math.random() > 0.5;
 
-                // 애니메이션 관련
                 this.frameIndex = 0;
                 this.animTimer = 0;
-                this.animSpeed = 10 + Math.floor(Math.random() * 10); // 걷는 속도마다 다르게
+                // 애니메이션 속도도 조금 느리게 조정
+                this.animSpeed = 15 + Math.floor(Math.random() * 15);
             }
 
             update() {
-                // 이미지 크기 설정 (로딩 후 최초 1회)
                 if (this.width === 0 && this.frames[0] && this.frames[0].width > 0) {
                     const ratio = this.frames[0].width / this.frames[0].height;
                     this.width = this.height * ratio;
                 }
 
-                // [수정] 목표 지점이 있으면 그쪽으로 이동 (터치 기능 복구)
                 if (this.targetX !== null && this.targetY !== null) {
                     const dx = this.targetX - this.x;
                     const dy = this.targetY - this.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
 
                     if (dist > 5) {
-                        // 목표를 향해 이동
-                        this.x += (dx / dist) * this.speedBase * 2; // 평소보다 좀 더 빠르게
-                        this.y += (dy / dist) * this.speedBase * 2;
+                        // 목표 이동 시에는 평소보다 조금 빠르게 (2배 -> 1.5배로 조정)
+                        this.x += (dx / dist) * this.speedBase * 1.5;
+                        this.y += (dy / dist) * this.speedBase * 1.5;
                         this.facingRight = dx > 0;
                     } else {
-                        // 도착하면 랜덤 이동으로 복귀
                         this.targetX = null;
                         this.targetY = null;
                         this.vx = (Math.random() - 0.5) * this.speedBase;
                         this.vy = (Math.random() - 0.5) * this.speedBase;
                     }
                 } else {
-                    // 평소 랜덤 이동
                     this.x += this.vx;
                     this.y += this.vy;
 
-                    // 화면 밖 제한
                     if (this.x < 0 || this.x > canvas.width - this.width) {
                         this.vx *= -1;
                         this.facingRight = this.vx > 0;
@@ -373,7 +443,6 @@
                         this.vy *= -1;
                     }
                     
-                    // 가끔 방향 전환
                     if (Math.random() < 0.01) {
                         this.vx = (Math.random() - 0.5) * this.speedBase;
                         this.vy = (Math.random() - 0.5) * this.speedBase;
@@ -381,11 +450,9 @@
                     }
                 }
 
-                // [수정] 걷는 애니메이션 프레임 교체
                 this.animTimer++;
                 if (this.animTimer >= this.animSpeed) {
                     this.animTimer = 0;
-                    // 이미지가 3장이라면 0 -> 1 -> 2 -> 0 순서로 반복
                     if (this.frames.length > 0) {
                         this.frameIndex = (this.frameIndex + 1) % this.frames.length;
                     }
@@ -393,17 +460,12 @@
             }
 
             draw() {
-                // 현재 보여줄 프레임 이미지 가져오기
                 const currentImg = this.frames[this.frameIndex];
-                
                 if (!currentImg || currentImg.width === 0) return;
 
                 ctx.save();
-                
-                // 배경 투명화 효과
                 ctx.globalCompositeOperation = 'multiply';
 
-                // 좌우 반전
                 if (!this.facingRight) {
                     ctx.translate(this.x + this.width/2, this.y + this.height/2);
                     ctx.scale(-1, 1);
@@ -413,9 +475,14 @@
                 ctx.drawImage(currentImg, this.x, this.y, this.width, this.height);
                 ctx.restore();
 
-                // 그림자
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 ctx.fillRect(this.x + (this.width * 0.2), this.y + this.height - 5, this.width * 0.6, 5);
+            }
+
+            // [추가] 클릭 판정
+            isClicked(mx, my) {
+                return mx >= this.x && mx <= this.x + this.width &&
+                       my >= this.y && my <= this.y + this.height;
             }
         }
 
@@ -424,14 +491,8 @@
 
         function createStudents() {
             students = [];
-            // [수정] 남자 17명 생성
-            for(let i=0; i<MALE_COUNT; i++) {
-                students.push(new Student('male'));
-            }
-            // [수정] 여자 15명 생성
-            for(let i=0; i<FEMALE_COUNT; i++) {
-                students.push(new Student('female'));
-            }
+            for(let i=0; i<MALE_COUNT; i++) students.push(new Student('male'));
+            for(let i=0; i<FEMALE_COUNT; i++) students.push(new Student('female'));
         }
 
         function drawBackground() {
@@ -462,33 +523,24 @@
 
         function drawGame() {
             if (!isPlaying) return;
-
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawBackground();
 
-            // Y축 정렬 (원근감)
             students.sort((a, b) => a.y - b.y);
-            students.forEach(s => {
-                s.update();
-                s.draw();
-            });
+            students.forEach(s => { s.update(); s.draw(); });
 
             requestAnimationFrame(drawGame);
         }
 
-        // --- 이벤트 리스너 ---
+        // --- 기능 및 이벤트 ---
 
         window.startGame = function() {
             const pw = document.getElementById('password').value;
             if (pw === CONFIG.PASSWORD) {
-                if (!isLoaded) {
-                    alert("이미지를 불러오는 중입니다...");
-                    return;
-                }
+                if (!isLoaded) { alert("로딩 중..."); return; }
                 loginBox.style.display = 'none';
                 uiLayer.style.pointerEvents = 'none';
                 gameUI.style.display = 'flex'; 
-                
                 createStudents();
                 isPlaying = true;
                 drawGame();
@@ -497,29 +549,47 @@
             }
         }
 
-        // 유튜브 모달 열기
-        window.openPhoneModal = function() {
-            const iframe = document.getElementById('youtube-frame');
-            // 모달 열 때 유튜브 주소 주입 (자동 재생 등 가능)
-            if(!iframe.src) {
-                iframe.src = CONFIG.YOUTUBE_URL;
-            }
+        // 1. 영상 열기 (자동재생 추가)
+        window.openVideo = function() {
+            videoBox.style.display = 'flex';
+            diaryBox.style.display = 'none';
             modalOverlay.style.display = 'flex';
+            
+            // [수정] 자동재생(?autoplay=1) 및 음소거(&mute=1) 추가
+            // 모바일 브라우저는 음소거 상태여야 자동재생이 잘 됩니다.
+            if(!youtubeFrame.src) {
+                youtubeFrame.src = CONFIG.YOUTUBE_URL + "?autoplay=1&mute=1";
+            } else {
+                 // 이미 로드된 상태라면 src를 재설정해서 다시 재생
+                 youtubeFrame.src = youtubeFrame.src;
+            }
+        }
+
+        // 2. 일기장 열기
+        window.openDiary = function() {
+            videoBox.style.display = 'none';
+            diaryBox.style.display = 'flex';
+            modalOverlay.style.display = 'flex';
+            
+            // 랜덤 일기 표시
+            const entry = CONFIG.DIARY_ENTRIES[Math.floor(Math.random() * CONFIG.DIARY_ENTRIES.length)];
+            diaryText.innerText = entry;
         }
 
         window.closeModal = function() {
-            // 모달 닫을 때 영상 멈추기 위해 src 초기화
-            const iframe = document.getElementById('youtube-frame');
-            iframe.src = ""; 
+            // 영상 멈춤 처리
+            youtubeFrame.src = ""; 
             modalOverlay.style.display = 'none';
         }
 
-        // [수정] 터치/클릭 시 학생들이 모이는 기능 복구
+        // 3. 터치/클릭 이벤트 (말풍선 + 이동)
         canvas.addEventListener('mousedown', handleInput);
         canvas.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
             handleInput({ clientX: touch.clientX, clientY: touch.clientY });
         }, {passive: false});
+
+        let bubbleTimer = null;
 
         function handleInput(e) {
             if (!isPlaying) return;
@@ -527,13 +597,42 @@
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            // 말풍선 기능은 요청에 의해 삭제되었습니다.
-            // 대신 모든 학생이 클릭한 위치로 모입니다.
-            students.forEach(s => {
-                // 클릭 위치 근처로 랜덤하게 목표 설정
-                s.targetX = x + (Math.random() - 0.5) * 200;
-                s.targetY = y + (Math.random() - 0.5) * 100;
-            });
+            // [수정] 클릭된 학생 찾기 (앞에 있는 학생부터)
+            let clickedStudent = null;
+            // 화면에 보이는 순서(y축 정렬)의 역순으로 체크해야 위에 있는 캐릭터가 클릭됨
+            // 그러나 students 배열은 계속 sort되므로 그냥 역순 탐색
+            for (let i = students.length - 1; i >= 0; i--) {
+                if (students[i].isClicked(x, y)) {
+                    clickedStudent = students[i];
+                    break;
+                }
+            }
+
+            if (clickedStudent) {
+                // 캐릭터 클릭 시: 말풍선 표시
+                const talk = CONFIG.TALKS[Math.floor(Math.random() * CONFIG.TALKS.length)];
+                showBubble(clickedStudent.x + clickedStudent.width/2, clickedStudent.y, talk);
+            } else {
+                // 빈 곳 클릭 시: 모이기
+                // 말풍선 숨김
+                bubble.style.display = 'none';
+                students.forEach(s => {
+                    s.targetX = x + (Math.random() - 0.5) * 200;
+                    s.targetY = y + (Math.random() - 0.5) * 100;
+                });
+            }
+        }
+
+        function showBubble(bx, by, text) {
+            bubble.style.left = bx + 'px';
+            bubble.style.top = by + 'px';
+            bubble.innerText = text;
+            bubble.style.display = 'block';
+
+            if(bubbleTimer) clearTimeout(bubbleTimer);
+            bubbleTimer = setTimeout(() => {
+                bubble.style.display = 'none';
+            }, 2000);
         }
 
         window.addEventListener('resize', () => {
@@ -545,5 +644,3 @@
     </script>
 </body>
 </html>
-
-
