@@ -298,8 +298,10 @@
                 NIGHT: "bg_night.png"
             },
 
+            // 유튜브 주소 (embed + playsinline)
             YOUTUBE_URL: "https://www.youtube.com/embed/FEI_imQ1Eaw?playsinline=1",
 
+            // [수정] 오타 수정 완료
             TALKS: [
                 "안녕?", "오늘 급식 뭐지?", "숙제 했어?", 
                 "오늘 시간표 뭐야?", "체육 시간 기다려진다", 
@@ -365,7 +367,7 @@
             if (loadedCount === totalAssets) {
                 isLoaded = true;
                 const msg = document.getElementById('loading-msg');
-                msg.innerText = "우리의 1년을 추억하며";
+                msg.innerText = "준비 완료!";
                 msg.style.color = "green";
                 msg.style.display = "block";
                 drawGame(); 
@@ -420,8 +422,8 @@
                 this.animTimer = 0;
                 this.animSpeed = 15 + Math.floor(Math.random() * 15);
                 
-                // 줍기 동작 시 프레임 순서 제어용 (4->5->6->5->4)
-                this.pickSequence = [0, 1, 2, 1, 0];
+                // [수정] 줍기 시퀀스 변경: 4(서기) -> 5(구부림) -> 5(유지) -> 6(집고 일어남)
+                this.pickSequence = [0, 1, 1, 2];
                 this.pickSeqIndex = 0;
             }
 
@@ -519,12 +521,16 @@
 
                 ctx.save();
                 
-                // 조명 효과 (필터 사용)
+                // [수정] 조명 효과 개선: filter 사용
+                // fillRect 박스 대신 이미지 자체 필터를 사용하여 투명 배경 문제 해결
                 if (currentTimePhase === 'night') {
+                    // 밤: 밝기 60%로 줄이고 채도 약간 낮춤 (차분한 느낌)
                     ctx.filter = 'brightness(60%) grayscale(20%)';
                 } else if (currentTimePhase === 'sunset') {
+                    // 노을: 세피아 톤 추가 + 색조 회전으로 붉은기 + 밝기 약간 감소
                     ctx.filter = 'sepia(40%) hue-rotate(-15deg) brightness(90%)';
                 } else {
+                    // 낮: 필터 없음
                     ctx.filter = 'none';
                 }
 
@@ -536,9 +542,9 @@
                 }
                 ctx.drawImage(currentImg, this.x, this.y, this.width, this.height);
                 
-                ctx.restore();
+                ctx.restore(); // 저장해둔 상태(필터 등) 초기화
 
-                // 발 밑 그림자
+                // 발 밑 그림자 (항상 표시)
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 ctx.fillRect(this.x + (this.width * 0.2), this.y + this.height - 5, this.width * 0.6, 5);
             }
@@ -563,6 +569,7 @@
             let bgImage = null;
             let bgColor = "#87CEEB"; 
 
+            // 시간대 설정 및 배경 선택
             if (hour >= 6 && hour < 17) {
                 currentTimePhase = 'day';
                 bgImage = assets.bg.day;
@@ -618,6 +625,8 @@
             videoBox.style.display = 'flex';
             diaryBox.style.display = 'none';
             modalOverlay.style.display = 'flex';
+            
+            // [수정] 무조건 URL을 다시 설정해서 영상을 불러옵니다.
             youtubeFrame.src = CONFIG.YOUTUBE_URL;
         }
 
