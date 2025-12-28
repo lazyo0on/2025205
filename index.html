@@ -458,7 +458,7 @@
                 // --- [2] 걷기 상태일 때 ---
                 
                 // 랜덤하게 줍기 동작 시작 (여자만, 0.2% 확률)
-                if (this.gender === 'female' && this.pickFrames.length > 0 && Math.random() < 0.002) {
+                if (this.gender === 'female' && this.pickFrames.length > 0 && Math.random() < 0.001) {
                     this.state = 'pick';
                     this.currentFrames = this.pickFrames;
                     this.pickSeqIndex = 0;
@@ -698,3 +698,4 @@
     </script>
 </body>
 </html>
+
