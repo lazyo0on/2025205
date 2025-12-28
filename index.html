@@ -259,7 +259,7 @@
                 <!-- playsinline 추가: 모바일에서 전체화면 강제 전환 방지 -->
                 <iframe 
                     id="youtube-frame"
-                    src="https://www.youtube.com/embed/FEI_imQ1Eaw?playsinline=1" 
+                    src="" 
                     title="YouTube video player" 
                     frameborder="0" 
                     allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -298,6 +298,7 @@
             // 유튜브 주소 (embed + playsinline)
             YOUTUBE_URL: "https://www.youtube.com/embed/FEI_imQ1Eaw?playsinline=1",
 
+            // [수정] 오타 수정 완료 ("" -> ")
             TALKS: [
                 "안녕?", "오늘 급식 뭐지?", "숙제 했어?", 
                 "오늘 시간표 뭐야?", "체육 시간 기다려진다", 
@@ -461,6 +462,19 @@
 
                 ctx.save();
                 
+                // [수정] 조명 효과 개선: filter 사용
+                // fillRect 박스 대신 이미지 자체 필터를 사용하여 투명 배경 문제 해결
+                if (currentTimePhase === 'night') {
+                    // 밤: 밝기 60%로 줄이고 채도 약간 낮춤 (차분한 느낌)
+                    ctx.filter = 'brightness(60%) grayscale(20%)';
+                } else if (currentTimePhase === 'sunset') {
+                    // 노을: 세피아 톤 추가 + 색조 회전으로 붉은기 + 밝기 약간 감소
+                    ctx.filter = 'sepia(40%) hue-rotate(-15deg) brightness(90%)';
+                } else {
+                    // 낮: 필터 없음
+                    ctx.filter = 'none';
+                }
+
                 // 캐릭터 그리기
                 if (!this.facingRight) {
                     ctx.translate(this.x + this.width/2, this.y + this.height/2);
@@ -469,22 +483,7 @@
                 }
                 ctx.drawImage(currentImg, this.x, this.y, this.width, this.height);
                 
-                // [핵심] 시간대별 조명 효과 적용 (source-atop)
-                // 이미 그려진 캐릭터 위에만 색상을 덮어씌우는 방식입니다.
-                // 투명도가 있는 검은색/주황색을 덮어씌워 캐릭터가 어두워지거나 노을빛을 받게 합니다.
-                ctx.globalCompositeOperation = 'source-atop';
-
-                if (currentTimePhase === 'night') {
-                    // 밤: 50% 검은색 그림자 (어둡게)
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
-                } else if (currentTimePhase === 'sunset') {
-                    // 노을: 20% 주황빛 + 10% 어둠 (따뜻하고 약간 어둡게)
-                    ctx.fillStyle = 'rgba(255, 100, 0, 0.2)'; 
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
-                }
-                
-                ctx.restore(); // 설정 초기화
+                ctx.restore(); // 저장해둔 상태(필터 등) 초기화
 
                 // 발 밑 그림자 (항상 표시)
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
@@ -640,5 +639,3 @@
     </script>
 </body>
 </html>
-
-
