@@ -256,7 +256,7 @@
             <div class="video-container">
                 <iframe 
                     id="youtube-frame"
-                    src="" 
+                    src="https://www.youtube.com/embed/FEI_imQ1Eaw" 
                     title="YouTube video player" 
                     frameborder="0" 
                     allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -464,7 +464,10 @@
                 if (!currentImg || currentImg.width === 0) return;
 
                 ctx.save();
-                ctx.globalCompositeOperation = 'multiply';
+                
+                // [수정] 배경 투명화 효과(multiply) 제거
+                // 얼굴이 배경색과 섞이거나(오버랩) 밤에 너무 어두워지는 현상을 방지합니다.
+                // ctx.globalCompositeOperation = 'multiply'; (삭제됨)
 
                 if (!this.facingRight) {
                     ctx.translate(this.x + this.width/2, this.y + this.height/2);
