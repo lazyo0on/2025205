@@ -289,16 +289,17 @@
             MALE_FRAMES: ["boy1.png", "boy2.png", "boy3.png"],
             FEMALE_FRAMES: ["girl1.png", "girl2.png", "girl3.png"],
             
+            // [추가] 여자 캐릭터 줍는 모션 (images 폴더에 파일 필수)
+            FEMALE_PICK_FRAMES: ["girl4.png", "girl5.png", "girl6.png"],
+            
             BG_IMAGES: {
                 DAY: "bg_day.png",
                 SUNSET: "bg_sunset.png",
                 NIGHT: "bg_night.png"
             },
 
-            // 유튜브 주소 (embed + playsinline)
             YOUTUBE_URL: "https://www.youtube.com/embed/FEI_imQ1Eaw?playsinline=1",
 
-            // [수정] 오타 수정 완료
             TALKS: [
                 "안녕?", "오늘 급식 뭐지?", "숙제 했어?", 
                 "오늘 시간표 뭐야?", "체육 시간 기다려진다", 
@@ -333,11 +334,11 @@
         const FEMALE_COUNT = 15;
         const CHAR_HEIGHT = 60; 
 
-        // 현재 시간대 상태 (day, sunset, night)
         let currentTimePhase = 'day';
 
         // --- 리소스 관리 ---
-        const assets = { male: [], female: [], bg: {} };
+        // femalePick 추가
+        const assets = { male: [], female: [], femalePick: [], bg: {} };
         let loadedCount = 0;
         let totalAssets = 0;
         let isLoaded = false;
@@ -355,6 +356,7 @@
             
             if (type === 'male') assets.male.push(img);
             else if (type === 'female') assets.female.push(img);
+            else if (type === 'femalePick') assets.femalePick.push(img); // [추가]
             else if (type === 'bg') assets.bg[key] = img;
         }
 
@@ -363,7 +365,7 @@
             if (loadedCount === totalAssets) {
                 isLoaded = true;
                 const msg = document.getElementById('loading-msg');
-                msg.innerText = "어쩌고저쩌고";
+                msg.innerText = "우리의 1년을 추억하며";
                 msg.style.color = "green";
                 msg.style.display = "block";
                 drawGame(); 
@@ -373,6 +375,8 @@
         function init() {
             CONFIG.MALE_FRAMES.forEach(src => loadAsset(src, 'male'));
             CONFIG.FEMALE_FRAMES.forEach(src => loadAsset(src, 'female'));
+            // [추가] 줍는 동작 프레임 로드
+            CONFIG.FEMALE_PICK_FRAMES.forEach(src => loadAsset(src, 'femalePick'));
             
             loadAsset(CONFIG.BG_IMAGES.DAY, 'bg', 'day');
             loadAsset(CONFIG.BG_IMAGES.SUNSET, 'bg', 'sunset');
@@ -385,7 +389,17 @@
         class Student {
             constructor(gender) {
                 this.gender = gender;
-                this.frames = (gender === 'male') ? assets.male : assets.female;
+                
+                // 프레임 세트 분리
+                this.walkFrames = (gender === 'male') ? assets.male : assets.female;
+                // 여자만 줍는 동작 있음
+                this.pickFrames = (gender === 'female') ? assets.femalePick : [];
+                
+                // 현재 상태 ('walk' or 'pick')
+                this.state = 'walk';
+                
+                // 현재 보여줄 프레임 배열 (기본: 걷기)
+                this.currentFrames = this.walkFrames;
                 
                 this.width = 0; 
                 this.height = CHAR_HEIGHT;
@@ -405,14 +419,53 @@
                 this.frameIndex = 0;
                 this.animTimer = 0;
                 this.animSpeed = 15 + Math.floor(Math.random() * 15);
+                
+                // 줍기 동작 시 프레임 순서 제어용 (4->5->6->5->4)
+                this.pickSequence = [0, 1, 2, 1, 0];
+                this.pickSeqIndex = 0;
             }
 
             update() {
-                if (this.width === 0 && this.frames[0] && this.frames[0].width > 0) {
-                    const ratio = this.frames[0].width / this.frames[0].height;
+                // 이미지 크기 초기화 (한 번만)
+                if (this.width === 0 && this.walkFrames[0] && this.walkFrames[0].width > 0) {
+                    const ratio = this.walkFrames[0].width / this.walkFrames[0].height;
                     this.width = this.height * ratio;
                 }
 
+                // --- [1] 줍기 상태일 때 ---
+                if (this.state === 'pick') {
+                    this.animTimer++;
+                    if (this.animTimer >= 20) { // 줍는 동작은 조금 천천히
+                        this.animTimer = 0;
+                        this.pickSeqIndex++;
+                        
+                        // 동작 끝났으면 걷기로 복귀
+                        if (this.pickSeqIndex >= this.pickSequence.length) {
+                            this.state = 'walk';
+                            this.currentFrames = this.walkFrames;
+                            this.frameIndex = 0;
+                            this.pickSeqIndex = 0;
+                        } else {
+                            // 시퀀스에 맞춰 프레임 인덱스 설정
+                            this.frameIndex = this.pickSequence[this.pickSeqIndex];
+                        }
+                    }
+                    return; // 줍는 동안은 이동하지 않음
+                }
+
+                // --- [2] 걷기 상태일 때 ---
+                
+                // 랜덤하게 줍기 동작 시작 (여자만, 0.2% 확률)
+                if (this.gender === 'female' && this.pickFrames.length > 0 && Math.random() < 0.002) {
+                    this.state = 'pick';
+                    this.currentFrames = this.pickFrames;
+                    this.pickSeqIndex = 0;
+                    this.frameIndex = this.pickSequence[0];
+                    this.animTimer = 0;
+                    return;
+                }
+
+                // 이동 로직
                 if (this.targetX !== null && this.targetY !== null) {
                     const dx = this.targetX - this.x;
                     const dy = this.targetY - this.y;
@@ -447,31 +500,31 @@
                     }
                 }
 
+                // 걷기 애니메이션
                 this.animTimer++;
                 if (this.animTimer >= this.animSpeed) {
                     this.animTimer = 0;
-                    if (this.frames.length > 0) {
-                        this.frameIndex = (this.frameIndex + 1) % this.frames.length;
+                    if (this.currentFrames.length > 0) {
+                        this.frameIndex = (this.frameIndex + 1) % this.currentFrames.length;
                     }
                 }
             }
 
             draw() {
-                const currentImg = this.frames[this.frameIndex];
+                // 현재 상태에 맞는 프레임 배열에서 이미지 가져오기
+                const currentImg = this.currentFrames[this.frameIndex];
+                
+                // 이미지가 아직 로드되지 않았거나 없을 경우 건너뜀
                 if (!currentImg || currentImg.width === 0) return;
 
                 ctx.save();
                 
-                // [수정] 조명 효과 개선: filter 사용
-                // fillRect 박스 대신 이미지 자체 필터를 사용하여 투명 배경 문제 해결
+                // 조명 효과 (필터 사용)
                 if (currentTimePhase === 'night') {
-                    // 밤: 밝기 60%로 줄이고 채도 약간 낮춤 (차분한 느낌)
                     ctx.filter = 'brightness(60%) grayscale(20%)';
                 } else if (currentTimePhase === 'sunset') {
-                    // 노을: 세피아 톤 추가 + 색조 회전으로 붉은기 + 밝기 약간 감소
                     ctx.filter = 'sepia(40%) hue-rotate(-15deg) brightness(90%)';
                 } else {
-                    // 낮: 필터 없음
                     ctx.filter = 'none';
                 }
 
@@ -483,9 +536,9 @@
                 }
                 ctx.drawImage(currentImg, this.x, this.y, this.width, this.height);
                 
-                ctx.restore(); // 저장해둔 상태(필터 등) 초기화
+                ctx.restore();
 
-                // 발 밑 그림자 (항상 표시)
+                // 발 밑 그림자
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 ctx.fillRect(this.x + (this.width * 0.2), this.y + this.height - 5, this.width * 0.6, 5);
             }
@@ -510,7 +563,6 @@
             let bgImage = null;
             let bgColor = "#87CEEB"; 
 
-            // 시간대 설정 및 배경 선택
             if (hour >= 6 && hour < 17) {
                 currentTimePhase = 'day';
                 bgImage = assets.bg.day;
@@ -566,8 +618,6 @@
             videoBox.style.display = 'flex';
             diaryBox.style.display = 'none';
             modalOverlay.style.display = 'flex';
-            
-            // [수정] 무조건 URL을 다시 설정해서 영상을 불러옵니다.
             youtubeFrame.src = CONFIG.YOUTUBE_URL;
         }
 
@@ -639,5 +689,3 @@
     </script>
 </body>
 </html>
-
-
