@@ -83,7 +83,8 @@
         canvas.height = window.innerHeight;
 
         const STUDENT_COUNT = 32;
-        const PIXEL_SCALE = 4; // 캐릭터 크기 배율
+        // [수정] 배율(PIXEL_SCALE) 대신 고정된 높이 값을 사용합니다.
+        const CHAR_HEIGHT = 120; // 캐릭터의 키를 120px로 고정 (조절 가능)
 
         // --- 이미지 미리 불러오기 (프리로딩) ---
         const loadedImages = [];
@@ -153,8 +154,10 @@
                 // 이미지 크기 초기화 (로딩 완료 후 최초 1회)
                 // [안전 장치 추가] 로드된 이미지가 유효한지(width > 0) 확인
                 if (this.width === 0 && loadedImages[0] && loadedImages[0].width > 0) {
-                    this.width = loadedImages[0].width * PIXEL_SCALE;
-                    this.height = loadedImages[0].height * PIXEL_SCALE;
+                    // [수정] 원본 크기에 상관없이 높이를 CHAR_HEIGHT(120px)로 고정하고, 비율에 맞춰 너비 설정
+                    const ratio = loadedImages[0].width / loadedImages[0].height;
+                    this.height = CHAR_HEIGHT;
+                    this.width = CHAR_HEIGHT * ratio;
                     
                     if (this.x > canvas.width - this.width) this.x = canvas.width - this.width;
                     if (this.y > canvas.height - this.height) this.y = canvas.height - this.height;
