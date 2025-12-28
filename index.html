@@ -133,6 +133,8 @@
             display: none; /* 기본 숨김 */
             flex-direction: column;
             box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            /* 모바일 최적화: 화면 중앙 정렬 보장 */
+            position: relative;
         }
 
         .video-container {
@@ -186,7 +188,7 @@
             margin-top: auto; /* 하단 배치 */
         }
 
-        /* [추가] 말풍선 스타일 */
+        /* 말풍선 스타일 */
         .bubble {
             position: absolute;
             background: white;
@@ -254,9 +256,10 @@
         <!-- 1. 영상 창 -->
         <div id="video-box" class="phone-modal" onclick="event.stopPropagation()">
             <div class="video-container">
+                <!-- playsinline 추가: 모바일에서 전체화면 강제 전환 방지 -->
                 <iframe 
                     id="youtube-frame"
-                    src="https://www.youtube.com/embed/FEI_imQ1Eaw" 
+                    src="" 
                     title="YouTube video player" 
                     frameborder="0" 
                     allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -283,33 +286,29 @@
             PASSWORD: "1234",
             IMAGE_FOLDER: "images/",
             
-            // 이미지 프레임 설정
             MALE_FRAMES: ["boy1.png", "boy2.png", "boy3.png"],
             FEMALE_FRAMES: ["girl1.png", "girl2.png", "girl3.png"],
             
-            // 배경 이미지 이름 (images 폴더 안에 이 이름의 파일이 있어야 함)
             BG_IMAGES: {
                 DAY: "bg_day.png",
                 SUNSET: "bg_sunset.png",
                 NIGHT: "bg_night.png"
             },
 
-            // 유튜브 주소 (embed)
-            YOUTUBE_URL: "https://www.youtube.com/embed/FEI_imQ1Eaw",
+            // 유튜브 주소 (embed + playsinline)
+            YOUTUBE_URL: "https://www.youtube.com/embed/FEI_imQ1Eaw?playsinline=1",
 
-            // [추가] 말풍선 대사 목록
             TALKS: [
                 "안녕?", "오늘 급식 뭐지?", "숙제 했어?", 
-                "매점 가자!", "체육 시간 기다려진다", 
+                "오늘 시간표 뭐야?"", "체육 시간 기다려진다", 
                 "선생님 안녕하세요!", "우리 반 최고!", "졸려..."
             ],
 
-            // [추가] 일기장 내용
             DIARY_ENTRIES: [
-                "3월 2일\n새로운 친구들을 만났다. 다들 착해 보인다.",
-                "5월 15일\n체육대회 예선전! 우리 반이 1등을 했다!",
-                "10월 20일\n현장체험학습을 다녀왔다. 사진을 많이 찍었다.",
-                "12월 24일\n크리스마스 이브 파티를 했다. 피자가 맛있었다."
+                "3월 4일\n새로운 친구들을 만났다. 다들 착해 보인다.",
+                "10월 2일\n체육대회! 우리 반이 (마음만은) 1등을 했다!",
+                "12월 10일\n오늘 시험을 봤다. 시험을 망해서 슬프다",
+                "12월 31일\n바스콘에 나갔다. 춤을 추는 우리 모습이 너무 웃겼다."
             ]
         };
 
@@ -321,7 +320,6 @@
         const modalOverlay = document.getElementById('modal-overlay');
         const bubble = document.getElementById('bubble');
         
-        // 모달 요소들
         const videoBox = document.getElementById('video-box');
         const diaryBox = document.getElementById('diary-box');
         const diaryText = document.getElementById('diary-text');
@@ -330,10 +328,12 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // 학생 수
         const MALE_COUNT = 17; 
         const FEMALE_COUNT = 15;
         const CHAR_HEIGHT = 60; 
+
+        // 현재 시간대 상태 (day, sunset, night)
+        let currentTimePhase = 'day';
 
         // --- 리소스 관리 ---
         const assets = { male: [], female: [], bg: {} };
@@ -384,7 +384,6 @@
         class Student {
             constructor(gender) {
                 this.gender = gender;
-                // 여자 캐릭터가 안 나오는 경우를 대비해 배열 할당 재확인
                 this.frames = (gender === 'male') ? assets.male : assets.female;
                 
                 this.width = 0; 
@@ -393,7 +392,6 @@
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 
-                // [수정] 이동 속도를 기존의 1/3 수준으로 감소 (0.33배)
                 this.speedBase = (1 + Math.random()) * 0.33; 
                 this.vx = (Math.random() - 0.5) * this.speedBase;
                 this.vy = (Math.random() - 0.5) * this.speedBase;
@@ -405,7 +403,6 @@
 
                 this.frameIndex = 0;
                 this.animTimer = 0;
-                // 애니메이션 속도도 조금 느리게 조정
                 this.animSpeed = 15 + Math.floor(Math.random() * 15);
             }
 
@@ -421,7 +418,6 @@
                     const dist = Math.sqrt(dx*dx + dy*dy);
 
                     if (dist > 5) {
-                        // 목표 이동 시에는 평소보다 조금 빠르게 (2배 -> 1.5배로 조정)
                         this.x += (dx / dist) * this.speedBase * 1.5;
                         this.y += (dy / dist) * this.speedBase * 1.5;
                         this.facingRight = dx > 0;
@@ -465,24 +461,36 @@
 
                 ctx.save();
                 
-                // [수정] 배경 투명화 효과(multiply) 제거
-                // 얼굴이 배경색과 섞이거나(오버랩) 밤에 너무 어두워지는 현상을 방지합니다.
-                // ctx.globalCompositeOperation = 'multiply'; (삭제됨)
-
+                // 캐릭터 그리기
                 if (!this.facingRight) {
                     ctx.translate(this.x + this.width/2, this.y + this.height/2);
                     ctx.scale(-1, 1);
                     ctx.translate(-(this.x + this.width/2), -(this.y + this.height/2));
                 }
-
                 ctx.drawImage(currentImg, this.x, this.y, this.width, this.height);
-                ctx.restore();
+                
+                // [핵심] 시간대별 조명 효과 적용 (source-atop)
+                // 이미 그려진 캐릭터 위에만 색상을 덮어씌우는 방식입니다.
+                // 투명도가 있는 검은색/주황색을 덮어씌워 캐릭터가 어두워지거나 노을빛을 받게 합니다.
+                ctx.globalCompositeOperation = 'source-atop';
 
+                if (currentTimePhase === 'night') {
+                    // 밤: 50% 검은색 그림자 (어둡게)
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                } else if (currentTimePhase === 'sunset') {
+                    // 노을: 20% 주황빛 + 10% 어둠 (따뜻하고 약간 어둡게)
+                    ctx.fillStyle = 'rgba(255, 100, 0, 0.2)'; 
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                }
+                
+                ctx.restore(); // 설정 초기화
+
+                // 발 밑 그림자 (항상 표시)
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 ctx.fillRect(this.x + (this.width * 0.2), this.y + this.height - 5, this.width * 0.6, 5);
             }
 
-            // [추가] 클릭 판정
             isClicked(mx, my) {
                 return mx >= this.x && mx <= this.x + this.width &&
                        my >= this.y && my <= this.y + this.height;
@@ -499,33 +507,30 @@
         }
 
         function drawBackground() {
-            // [중요] 실제 시간에 따라 배경이 바뀝니다.
             const hour = new Date().getHours();
             let bgImage = null;
             let bgColor = "#87CEEB"; 
 
+            // 시간대 설정 및 배경 선택
             if (hour >= 6 && hour < 17) {
-                // 낮 (06시 ~ 17시)
+                currentTimePhase = 'day';
                 bgImage = assets.bg.day;
-                bgColor = "#87CEEB"; // 하늘색
+                bgColor = "#87CEEB"; 
             } else if (hour >= 17 && hour < 20) {
-                // 노을 (17시 ~ 20시)
+                currentTimePhase = 'sunset';
                 bgImage = assets.bg.sunset;
-                bgColor = "#FF7F50"; // 주황색
+                bgColor = "#FF7F50"; 
             } else {
-                // 밤 (20시 ~ 06시)
+                currentTimePhase = 'night';
                 bgImage = assets.bg.night;
-                bgColor = "#1a1a2e"; // 남색
+                bgColor = "#1a1a2e"; 
             }
 
-            // 배경 이미지가 로드되었으면 이미지를, 아니면 색상을 그림
             if (bgImage && bgImage.width > 0) {
                 ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
             } else {
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // 땅 그리기 (이미지가 없을 때만)
                 ctx.fillStyle = 'rgba(0,0,0,0.1)';
                 ctx.fillRect(0, canvas.height * 0.3, canvas.width, canvas.height);
             }
@@ -548,11 +553,7 @@
             const pw = document.getElementById('password').value;
             if (pw === CONFIG.PASSWORD) {
                 if (!isLoaded) { alert("로딩 중..."); return; }
-                
-                // [중요] 로그인 박스가 있는 레이어 전체를 아예 숨깁니다.
-                // (영상 모달을 닫을 때 로그인 버튼이 다시 눌리는 현상 방지)
                 uiLayer.style.display = 'none';
-                
                 gameUI.style.display = 'flex'; 
                 createStudents();
                 isPlaying = true;
@@ -562,36 +563,28 @@
             }
         }
 
-        // 1. 영상 열기 (자동재생 제거됨)
         window.openVideo = function() {
             videoBox.style.display = 'flex';
             diaryBox.style.display = 'none';
             modalOverlay.style.display = 'flex';
-            
-            // [수정] 자동재생 및 음소거 옵션 제거
             if(!youtubeFrame.src) {
                 youtubeFrame.src = CONFIG.YOUTUBE_URL;
             }
         }
 
-        // 2. 일기장 열기
         window.openDiary = function() {
             videoBox.style.display = 'none';
             diaryBox.style.display = 'flex';
             modalOverlay.style.display = 'flex';
-            
-            // 랜덤 일기 표시
             const entry = CONFIG.DIARY_ENTRIES[Math.floor(Math.random() * CONFIG.DIARY_ENTRIES.length)];
             diaryText.innerText = entry;
         }
 
         window.closeModal = function() {
-            // 영상 멈춤 처리
             youtubeFrame.src = ""; 
             modalOverlay.style.display = 'none';
         }
 
-        // 3. 터치/클릭 이벤트 (말풍선 + 이동)
         canvas.addEventListener('mousedown', handleInput);
         canvas.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
@@ -606,9 +599,7 @@
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            // [수정] 클릭된 학생 찾기 (앞에 있는 학생부터)
             let clickedStudent = null;
-            // 화면에 보이는 순서(y축 정렬)의 역순으로 체크해야 위에 있는 캐릭터가 클릭됨
             for (let i = students.length - 1; i >= 0; i--) {
                 if (students[i].isClicked(x, y)) {
                     clickedStudent = students[i];
@@ -617,12 +608,9 @@
             }
 
             if (clickedStudent) {
-                // 캐릭터 클릭 시: 말풍선 표시
                 const talk = CONFIG.TALKS[Math.floor(Math.random() * CONFIG.TALKS.length)];
                 showBubble(clickedStudent.x + clickedStudent.width/2, clickedStudent.y, talk);
             } else {
-                // 빈 곳 클릭 시: 모이기
-                // 말풍선 숨김
                 bubble.style.display = 'none';
                 students.forEach(s => {
                     s.targetX = x + (Math.random() - 0.5) * 200;
