@@ -63,7 +63,6 @@
             IMAGE_FOLDER: "images/",
             
             // 이미지 파일 이름 목록 (순서대로 적으세요)
-            // 예: 1.png, 2.png, 3.png가 있다면 아래처럼 적습니다.
             IMAGE_FILES: ["1.png", "2.png"], 
 
             TALKS: ["선생님, 안녕하세요!", "오늘 급식 맛있었어요!", "숙제 다 했어요!", "운동장 넓다~", "사랑해요 쌤!"],
@@ -84,28 +83,43 @@
         canvas.height = window.innerHeight;
 
         const STUDENT_COUNT = 32;
-        const PIXEL_SCALE = 4; // 캐릭터 크기 배율 (숫자가 클수록 캐릭터가 커짐)
+        const PIXEL_SCALE = 4; // 캐릭터 크기 배율
 
         // --- 이미지 미리 불러오기 (프리로딩) ---
         const loadedImages = [];
         let imagesLoadedCount = 0;
         let isAllImagesLoaded = false;
 
+        // 이미지가 모두 로드되었는지 확인하는 함수
+        function checkLoadComplete() {
+            imagesLoadedCount++;
+            if (imagesLoadedCount === CONFIG.IMAGE_FILES.length) {
+                isAllImagesLoaded = true;
+                const msg = document.getElementById('loading-msg');
+                msg.innerText = "준비 완료! 입장하세요.";
+                msg.style.color = "green";
+                msg.style.display = "block"; // 준비되면 메시지 보여줌
+                drawBackground();
+            }
+        }
+
         function preloadImages() {
             CONFIG.IMAGE_FILES.forEach((filename, index) => {
                 const img = new Image();
                 img.src = CONFIG.IMAGE_FOLDER + filename;
+                
+                // [수정된 부분] 성공하든 실패하든 카운트를 올려서 멈추지 않게 함
                 img.onload = () => {
-                    imagesLoadedCount++;
-                    if (imagesLoadedCount === CONFIG.IMAGE_FILES.length) {
-                        isAllImagesLoaded = true;
-                        document.getElementById('loading-msg').innerText = "로딩 완료! 입장하세요.";
-                        drawBackground();
-                    }
+                    console.log("로드 성공: " + filename);
+                    checkLoadComplete();
                 };
+                
                 img.onerror = () => {
                     console.error("이미지를 찾을 수 없습니다: " + filename);
+                    // 에러가 나도 일단 로드된 것으로 간주해서 진행시킴 (대신 빈 이미지가 됨)
+                    checkLoadComplete();
                 };
+                
                 loadedImages.push(img);
             });
         }
@@ -119,8 +133,6 @@
             constructor(id) {
                 this.id = id;
                 
-                // 첫 번째 이미지를 기준으로 크기 설정 (모든 이미지가 같은 크기여야 함)
-                // 로딩이 아직 안 됐을 수 있으므로 기본값 설정 후, draw에서 보정
                 this.width = 0; 
                 this.height = 0;
 
@@ -129,10 +141,9 @@
                 this.speedX = (Math.random() - 0.5) * 2;
                 this.speedY = (Math.random() - 0.5) * 2;
                 
-                // 애니메이션 상태
-                this.frameIndex = 0; // 현재 보여줄 이미지 번호
+                this.frameIndex = 0; 
                 this.frameCount = 0;
-                this.animationSpeed = Math.floor(Math.random() * 5) + 10; // 속도 랜덤
+                this.animationSpeed = Math.floor(Math.random() * 5) + 10; 
                 this.facingRight = this.speedX > 0;
 
                 this.targetX = null;
@@ -140,10 +151,11 @@
 
             update() {
                 // 이미지 크기 초기화 (로딩 완료 후 최초 1회)
-                if (this.width === 0 && loadedImages[0].width > 0) {
+                // [안전 장치 추가] 로드된 이미지가 유효한지(width > 0) 확인
+                if (this.width === 0 && loadedImages[0] && loadedImages[0].width > 0) {
                     this.width = loadedImages[0].width * PIXEL_SCALE;
                     this.height = loadedImages[0].height * PIXEL_SCALE;
-                    // 화면 밖으로 나갔다면 위치 보정
+                    
                     if (this.x > canvas.width - this.width) this.x = canvas.width - this.width;
                     if (this.y > canvas.height - this.height) this.y = canvas.height - this.height;
                 }
@@ -178,10 +190,8 @@
                     }
                 }
 
-                // 프레임 변경 (애니메이션)
                 this.frameCount++;
                 if (this.frameCount >= this.animationSpeed) {
-                    // 다음 이미지로 넘어감 (0 -> 1 -> 2 -> 3 -> 0 ...)
                     this.frameIndex = (this.frameIndex + 1) % loadedImages.length;
                     this.frameCount = 0;
                 }
@@ -192,21 +202,21 @@
 
                 const currentImage = loadedImages[this.frameIndex];
                 
+                // [안전 장치] 이미지가 깨졌거나 로드되지 않았으면 그리지 않음
+                if (!currentImage || currentImage.width === 0) return;
+
                 ctx.save();
                 
-                // 좌우 반전 처리
                 if (!this.facingRight) {
                     ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
                     ctx.scale(-1, 1);
                     ctx.translate(-(this.x + this.width / 2), -(this.y + this.height / 2));
                 }
 
-                // 이미지 그리기
                 ctx.drawImage(currentImage, this.x, this.y, this.width, this.height);
                 
                 ctx.restore();
 
-                // 그림자
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 ctx.fillRect(this.x + (this.width * 0.2), this.y + this.height - 5, this.width * 0.6, 5);
             }
@@ -229,7 +239,6 @@
             ctx.fillStyle = '#90EE90';
             ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
             
-            // 학교 건물 (간단화)
             const buildingW = 300;
             const buildingH = 200;
             const bx = (canvas.width - buildingW) / 2;
@@ -290,7 +299,9 @@
 
         function startGame() {
             if (!isAllImagesLoaded) {
+                // 이미지가 아직 로딩 중이면 메시지를 띄우고 기다림 (이제는 영원히 멈추지 않음)
                 document.getElementById('loading-msg').style.display = 'block';
+                document.getElementById('loading-msg').innerText = "로딩이 아직 완료되지 않았습니다.";
                 return;
             }
             const pw = document.getElementById('password').value;
@@ -318,4 +329,3 @@
     </script>
 </body>
 </html>
-
