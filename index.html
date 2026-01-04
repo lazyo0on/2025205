@@ -3,118 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2학년 5반의 추억 (최종)</title>
+    <title>2학년 5반의 추억</title>
     <!-- 픽셀 아트 폰트 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Dalgona/neodgm/neodgm.css">
     <style>
         :root {
-            --ui-border: 4px solid #333;
-            --btn-color: #FF9AA2;
-            --btn-text: #fff;
+            /* 부드러운 파스텔 톤 테마 */
+            --btn-bg: rgba(255, 255, 255, 0.8);
+            --btn-border: 3px solid #6d5f5f;
+            --text-color: #4a4a4a;
         }
 
         body {
             margin: 0;
-            overflow: hidden; /* 스크롤 방지 */
+            overflow: hidden;
             font-family: 'NeoDunggeunmo', sans-serif;
             background-color: #333;
-            touch-action: none; /* 모바일 터치 시 화면 밀림 방지 */
+            touch-action: none;
         }
 
         canvas {
             display: block;
-            image-rendering: pixelated; /* 도트 그래픽 선명하게 */
+            image-rendering: pixelated;
         }
 
-        /* 공통 UI 레이어 */
-        #ui-layer {
+        /* 로딩 레이어 (심플하고 감성적인 스타일) */
+        #loading-layer {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            display: flex; /* 시작 시 none으로 변경됨 */
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-        }
-
-        /* 로그인 박스 */
-        .login-container {
-            width: 90%;
-            max-width: 400px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            border: var(--ui-border);
-            padding: 30px 20px;
-            text-align: center;
-            pointer-events: auto;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background: #fdf6e3; /* 따뜻한 미색 배경 */
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            transition: opacity 0.5s;
         }
 
-        .title-area {
-            font-size: 2rem;
-            color: #333;
+        .loading-text {
+            font-size: 1.5rem;
+            color: #555;
             margin-bottom: 10px;
+            animation: blink 1.5s infinite;
         }
 
-        .custom-input {
-            width: 80%;
-            padding: 15px;
-            font-size: 1.2rem;
-            border: 2px solid #ccc;
-            border-radius: 10px;
-            margin: 0 auto;
-            font-family: inherit;
-            text-align: center;
+        .loading-sub {
+            font-size: 1rem;
+            color: #888;
         }
 
-        .start-btn {
-            background: var(--btn-color);
-            color: var(--btn-text);
-            border: 2px solid #333;
-            border-radius: 10px;
-            padding: 15px;
-            font-size: 1.3rem;
-            cursor: pointer;
-            font-family: inherit;
-            transition: 0.2s;
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
-        .start-btn:active { transform: scale(0.95); }
 
-        /* 게임 내 UI (버튼들) */
+        /* 게임 내 UI (우측 상단 메뉴) */
         #game-ui {
             position: absolute;
             top: 20px; right: 20px;
-            display: none; /* 로그인 전 숨김 */
+            display: none; /* 로딩 완료 후 flex로 변경 */
             gap: 15px;
             pointer-events: auto;
             z-index: 20;
         }
 
         .icon-btn {
-            width: 60px;
-            height: 60px;
-            background: white;
-            border: 3px solid #333;
-            border-radius: 15px;
-            font-size: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--btn-bg);
+            border: var(--btn-border);
+            border-radius: 15px; /* 둥글게 */
+            font-size: 24px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
-            transition: 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.1s, background 0.2s;
+            backdrop-filter: blur(4px); /* 반투명 블러 효과 */
         }
-        .icon-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
+        .icon-btn:active { transform: scale(0.95); }
+        .icon-btn:hover { background: #fff; }
 
-        /* 모달 오버레이 (공통) */
+        /* 모달 오버레이 */
         #modal-overlay {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.6); /* 배경을 조금 더 밝게 */
+            backdrop-filter: blur(2px);
             display: none;
             justify-content: center;
             align-items: center;
@@ -122,89 +100,99 @@
             pointer-events: auto;
         }
 
-        /* 1. 영상 모달 (스마트폰 모양) */
+        /* 공통 모달 스타일 (부드러운 느낌) */
+        .modal-base {
+            background: #fff;
+            border-radius: 20px;
+            border: 4px solid #6d5f5f;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            position: relative;
+            animation: popUp 0.3s ease-out;
+        }
+
+        @keyframes popUp {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* 1. 영상 모달 */
         .phone-modal {
             width: 90%;
             max-width: 600px;
-            background: #111;
-            border-radius: 20px;
-            border: 4px solid #444;
-            overflow: hidden;
-            display: none; /* 기본 숨김 */
-            flex-direction: column;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            /* 모바일 최적화: 화면 중앙 정렬 보장 */
-            position: relative;
+            background: #000; /* 영상 배경은 검정 */
         }
 
         .video-container {
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 비율 */
+            padding-bottom: 56.25%;
             height: 0;
             background: black;
         }
-        
         .video-container iframe {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
         }
 
-        /* 2. 일기장 모달 (노트 모양) */
+        /* 2. 일기장 모달 */
         .diary-modal {
             width: 85%;
-            max-width: 500px;
-            background: #fff;
-            border: 4px solid #333;
-            border-radius: 5px;
+            max-width: 400px;
             padding: 30px;
-            display: none; /* 기본 숨김 */
-            flex-direction: column;
-            box-shadow: 10px 10px 0 rgba(0,0,0,0.3);
-            position: relative;
+            background: #fffaf0; /* 종이 질감 색상 */
         }
         .diary-title {
-            font-size: 1.5rem;
-            border-bottom: 2px dashed #ccc;
-            padding-bottom: 10px;
+            font-size: 1.4rem;
+            color: #6d5f5f;
+            border-bottom: 2px dashed #d4c4c4;
+            padding-bottom: 15px;
             margin-bottom: 20px;
-            color: #555;
+            text-align: center;
         }
         .diary-content {
             font-size: 1.1rem;
             line-height: 1.8;
+            color: #4a4a4a;
             white-space: pre-wrap;
-            min-height: 150px;
+            min-height: 120px;
         }
 
         .close-modal-btn {
-            background: #333;
+            background: #ff8e8e;
             color: white;
             border: none;
-            padding: 15px;
+            padding: 12px;
             font-family: inherit;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
-            margin-top: auto; /* 하단 배치 */
+            margin-top: auto;
+            width: 100%;
+            text-align: center;
+            transition: background 0.2s;
         }
+        .close-modal-btn:hover { background: #ff7676; }
 
-        /* 말풍선 스타일 */
+        /* 말풍선 */
         .bubble {
             position: absolute;
-            background: white;
-            border: 2px solid black;
-            padding: 10px 15px;
-            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #6d5f5f;
+            padding: 8px 12px;
+            border-radius: 12px;
             font-size: 14px;
+            color: #333;
             pointer-events: none;
             display: none;
             z-index: 50;
-            max-width: 220px;
+            max-width: 200px;
             white-space: pre-wrap;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             text-align: center;
-            transform: translate(-50%, -100%); /* 좌표 기준을 하단 중앙으로 */
-            margin-top: -15px; /* 캐릭터 머리 위로 띄우기 */
+            transform: translate(-50%, -100%);
+            margin-top: -15px;
         }
         .bubble::after {
             content: '';
@@ -214,10 +202,8 @@
             transform: translateX(-50%);
             border-width: 8px 8px 0;
             border-style: solid;
-            border-color: black transparent transparent transparent;
+            border-color: #6d5f5f transparent transparent transparent;
         }
-
-        #loading-msg { color: #555; font-size: 0.9rem; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
@@ -225,38 +211,27 @@
     <!-- 게임 캔버스 -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- 게임 내 UI -->
+    <!-- 게임 내 UI (깔끔한 아이콘 버튼) -->
     <div id="game-ui">
-        <div class="icon-btn" onclick="openDiary()">📖</div>
-        <div class="icon-btn" onclick="openVideo()">📺</div>
+        <div class="icon-btn" onclick="openDiary()" title="학급 일기">📖</div>
+        <div class="icon-btn" onclick="openVideo()" title="추억 영상">📺</div>
     </div>
 
-    <!-- 로그인 UI -->
-    <div id="ui-layer">
-        <div class="login-container" id="login-box">
-            <div class="title-area">
-                🏫<br>2025 205
-            </div>
-            <p style="color: #666; font-size: 14px;">비밀번호를 입력하고 입장하세요!</p>
-            
-            <input type="password" id="password" class="custom-input" placeholder="비밀번호" inputmode="numeric">
-            <button class="start-btn" onclick="startGame()">입장하기</button>
-            
-            <p id="error-msg" style="color: #ff5e5e; display: none;">암호가 틀렸어요!</p>
-            <p id="loading-msg">이미지 로딩 중...</p>
-        </div>
+    <!-- 로딩 화면 (비밀번호 입력창 대신 사용) -->
+    <div id="loading-layer">
+        <div class="loading-text">🏫 2학년 5반의 추억</div>
+        <div class="loading-sub" id="loading-msg">추억을 불러오는 중...</div>
     </div>
 
-    <!-- 말풍선 (동적 위치) -->
+    <!-- 말풍선 -->
     <div id="bubble" class="bubble">안녕!</div>
 
-    <!-- 통합 모달 오버레이 -->
+    <!-- 모달 오버레이 -->
     <div id="modal-overlay">
         
         <!-- 1. 영상 창 -->
-        <div id="video-box" class="phone-modal" onclick="event.stopPropagation()">
+        <div id="video-box" class="modal-base phone-modal" onclick="event.stopPropagation()">
             <div class="video-container">
-                <!-- playsinline 추가: 모바일에서 전체화면 강제 전환 방지 -->
                 <iframe 
                     id="youtube-frame"
                     src="" 
@@ -270,9 +245,9 @@
         </div>
 
         <!-- 2. 일기장 창 -->
-        <div id="diary-box" class="diary-modal" onclick="event.stopPropagation()">
-            <div class="diary-title">✨ 학급 일기장</div>
-            <div id="diary-text" class="diary-content">일기 내용을 불러오는 중...</div>
+        <div id="diary-box" class="modal-base diary-modal" onclick="event.stopPropagation()">
+            <div class="diary-title">✨ 오늘의 기록</div>
+            <div id="diary-text" class="diary-content">...</div>
             <button class="close-modal-btn" style="margin-top: 20px;" onclick="closeModal()">덮기</button>
         </div>
 
@@ -283,13 +258,11 @@
         // [설정 구역]
         // =================================================================
         const CONFIG = {
-            PASSWORD: "1234",
+            // PASSWORD 설정 삭제됨 (자동 입장)
             IMAGE_FOLDER: "images/",
             
             MALE_FRAMES: ["boy1.png", "boy2.png", "boy3.png"],
             FEMALE_FRAMES: ["girl1.png", "girl2.png", "girl3.png"],
-            
-            // [추가] 여자 캐릭터 줍는 모션 (images 폴더에 파일 필수)
             FEMALE_PICK_FRAMES: ["girl4.png", "girl5.png", "girl6.png"],
             
             BG_IMAGES: {
@@ -298,10 +271,8 @@
                 NIGHT: "bg_night.png"
             },
 
-            // 유튜브 주소 (embed + playsinline)
             YOUTUBE_URL: "https://www.youtube.com/embed/FEI_imQ1Eaw?playsinline=1",
 
-            // [수정] 오타 수정 완료
             TALKS: [
                 "안녕?", "오늘 급식 뭐지?", "숙제 했어?", 
                 "오늘 시간표 뭐야?", "체육 시간 기다려진다", 
@@ -318,8 +289,8 @@
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const uiLayer = document.getElementById('ui-layer');
-        const loginBox = document.getElementById('login-box');
+        const loadingLayer = document.getElementById('loading-layer');
+        const loadingMsg = document.getElementById('loading-msg');
         const gameUI = document.getElementById('game-ui');
         const modalOverlay = document.getElementById('modal-overlay');
         const bubble = document.getElementById('bubble');
@@ -339,7 +310,6 @@
         let currentTimePhase = 'day';
 
         // --- 리소스 관리 ---
-        // femalePick 추가
         const assets = { male: [], female: [], femalePick: [], bg: {} };
         let loadedCount = 0;
         let totalAssets = 0;
@@ -358,7 +328,7 @@
             
             if (type === 'male') assets.male.push(img);
             else if (type === 'female') assets.female.push(img);
-            else if (type === 'femalePick') assets.femalePick.push(img); // [추가]
+            else if (type === 'femalePick') assets.femalePick.push(img); 
             else if (type === 'bg') assets.bg[key] = img;
         }
 
@@ -366,18 +336,15 @@
             loadedCount++;
             if (loadedCount === totalAssets) {
                 isLoaded = true;
-                const msg = document.getElementById('loading-msg');
-                msg.innerText = "2025년을 추억하며";
-                msg.style.color = "green";
-                msg.style.display = "block";
-                drawGame(); 
+                loadingMsg.innerText = "입장 중...";
+                // 로딩 완료 시 자동으로 게임 시작
+                setTimeout(startGame, 500); 
             }
         }
 
         function init() {
             CONFIG.MALE_FRAMES.forEach(src => loadAsset(src, 'male'));
             CONFIG.FEMALE_FRAMES.forEach(src => loadAsset(src, 'female'));
-            // [추가] 줍는 동작 프레임 로드
             CONFIG.FEMALE_PICK_FRAMES.forEach(src => loadAsset(src, 'femalePick'));
             
             loadAsset(CONFIG.BG_IMAGES.DAY, 'bg', 'day');
@@ -391,16 +358,10 @@
         class Student {
             constructor(gender) {
                 this.gender = gender;
-                
-                // 프레임 세트 분리
                 this.walkFrames = (gender === 'male') ? assets.male : assets.female;
-                // 여자만 줍는 동작 있음
                 this.pickFrames = (gender === 'female') ? assets.femalePick : [];
                 
-                // 현재 상태 ('walk' or 'pick')
                 this.state = 'walk';
-                
-                // 현재 보여줄 프레임 배열 (기본: 걷기)
                 this.currentFrames = this.walkFrames;
                 
                 this.width = 0; 
@@ -422,43 +383,36 @@
                 this.animTimer = 0;
                 this.animSpeed = 15 + Math.floor(Math.random() * 15);
                 
-                // [수정] 줍기 시퀀스 변경: 4(서기) -> 5(구부림) -> 5(유지) -> 6(집고 일어남)
+                // 줍기 시퀀스: 4(서기) -> 5(구부림) -> 5(유지) -> 6(집음)
                 this.pickSequence = [0, 1, 1, 2];
                 this.pickSeqIndex = 0;
             }
 
             update() {
-                // 이미지 크기 초기화 (한 번만)
                 if (this.width === 0 && this.walkFrames[0] && this.walkFrames[0].width > 0) {
                     const ratio = this.walkFrames[0].width / this.walkFrames[0].height;
                     this.width = this.height * ratio;
                 }
 
-                // --- [1] 줍기 상태일 때 ---
                 if (this.state === 'pick') {
                     this.animTimer++;
-                    if (this.animTimer >= 20) { // 줍는 동작은 조금 천천히
+                    if (this.animTimer >= 20) { 
                         this.animTimer = 0;
                         this.pickSeqIndex++;
                         
-                        // 동작 끝났으면 걷기로 복귀
                         if (this.pickSeqIndex >= this.pickSequence.length) {
                             this.state = 'walk';
                             this.currentFrames = this.walkFrames;
                             this.frameIndex = 0;
                             this.pickSeqIndex = 0;
                         } else {
-                            // 시퀀스에 맞춰 프레임 인덱스 설정
                             this.frameIndex = this.pickSequence[this.pickSeqIndex];
                         }
                     }
-                    return; // 줍는 동안은 이동하지 않음
+                    return; 
                 }
 
-                // --- [2] 걷기 상태일 때 ---
-                
-                // 랜덤하게 줍기 동작 시작 (여자만, 0.2% 확률)
-                if (this.gender === 'female' && this.pickFrames.length > 0 && Math.random() < 0.001) {
+                if (this.gender === 'female' && this.pickFrames.length > 0 && Math.random() < 0.002) {
                     this.state = 'pick';
                     this.currentFrames = this.pickFrames;
                     this.pickSeqIndex = 0;
@@ -467,7 +421,6 @@
                     return;
                 }
 
-                // 이동 로직
                 if (this.targetX !== null && this.targetY !== null) {
                     const dx = this.targetX - this.x;
                     const dy = this.targetY - this.y;
@@ -502,7 +455,6 @@
                     }
                 }
 
-                // 걷기 애니메이션
                 this.animTimer++;
                 if (this.animTimer >= this.animSpeed) {
                     this.animTimer = 0;
@@ -513,28 +465,19 @@
             }
 
             draw() {
-                // 현재 상태에 맞는 프레임 배열에서 이미지 가져오기
                 const currentImg = this.currentFrames[this.frameIndex];
-                
-                // 이미지가 아직 로드되지 않았거나 없을 경우 건너뜀
                 if (!currentImg || currentImg.width === 0) return;
 
                 ctx.save();
                 
-                // [수정] 조명 효과 개선: filter 사용
-                // fillRect 박스 대신 이미지 자체 필터를 사용하여 투명 배경 문제 해결
                 if (currentTimePhase === 'night') {
-                    // 밤: 밝기 60%로 줄이고 채도 약간 낮춤 (차분한 느낌)
                     ctx.filter = 'brightness(60%) grayscale(20%)';
                 } else if (currentTimePhase === 'sunset') {
-                    // 노을: 세피아 톤 추가 + 색조 회전으로 붉은기 + 밝기 약간 감소
                     ctx.filter = 'sepia(40%) hue-rotate(-15deg) brightness(90%)';
                 } else {
-                    // 낮: 필터 없음
                     ctx.filter = 'none';
                 }
 
-                // 캐릭터 그리기
                 if (!this.facingRight) {
                     ctx.translate(this.x + this.width/2, this.y + this.height/2);
                     ctx.scale(-1, 1);
@@ -542,9 +485,8 @@
                 }
                 ctx.drawImage(currentImg, this.x, this.y, this.width, this.height);
                 
-                ctx.restore(); // 저장해둔 상태(필터 등) 초기화
+                ctx.restore();
 
-                // 발 밑 그림자 (항상 표시)
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 ctx.fillRect(this.x + (this.width * 0.2), this.y + this.height - 5, this.width * 0.6, 5);
             }
@@ -569,7 +511,6 @@
             let bgImage = null;
             let bgColor = "#87CEEB"; 
 
-            // 시간대 설정 및 배경 선택
             if (hour >= 6 && hour < 17) {
                 currentTimePhase = 'day';
                 bgImage = assets.bg.day;
@@ -607,26 +548,22 @@
 
         // --- 기능 및 이벤트 ---
 
+        // 자동 시작 함수 (로그인 과정 삭제됨)
         window.startGame = function() {
-            const pw = document.getElementById('password').value;
-            if (pw === CONFIG.PASSWORD) {
-                if (!isLoaded) { alert("로딩 중..."); return; }
-                uiLayer.style.display = 'none';
-                gameUI.style.display = 'flex'; 
-                createStudents();
-                isPlaying = true;
-                drawGame();
-            } else {
-                document.getElementById('error-msg').style.display = 'block';
-            }
+            // 로딩 화면 숨기기
+            loadingLayer.style.display = 'none';
+            // 게임 UI 표시
+            gameUI.style.display = 'flex';
+            
+            createStudents();
+            isPlaying = true;
+            drawGame();
         }
 
         window.openVideo = function() {
             videoBox.style.display = 'flex';
             diaryBox.style.display = 'none';
             modalOverlay.style.display = 'flex';
-            
-            // [수정] 무조건 URL을 다시 설정해서 영상을 불러옵니다.
             youtubeFrame.src = CONFIG.YOUTUBE_URL;
         }
 
@@ -698,5 +635,3 @@
     </script>
 </body>
 </html>
-
-
