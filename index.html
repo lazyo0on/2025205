@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2학년 5반의 추억</title>
+    <title>우리반의 추억</title>
     <!-- 픽셀 아트 폰트 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Dalgona/neodgm/neodgm.css">
     <style>
@@ -27,7 +27,7 @@
             image-rendering: pixelated;
         }
 
-        /* [수정됨] 게임 내 UI (버튼 목록) - 상단 중앙 정렬 */
+        /* 게임 내 UI (버튼 목록) - 상단 중앙 정렬 */
         #game-ui {
             position: absolute;
             top: 20px; 
@@ -42,7 +42,7 @@
         }
 
         .icon-btn {
-            width: 45px; /* 아이콘 크기 살짝 조정 */
+            width: 45px;
             height: 45px;
             background: var(--btn-bg);
             border: var(--btn-border);
@@ -63,6 +63,11 @@
             height: 75%;
             object-fit: contain;
             image-rendering: pixelated;
+        }
+        
+        /* 텍스트 아이콘 (설정 등) */
+        .icon-text {
+            font-size: 1.5rem;
         }
 
         .icon-btn:active { 
@@ -145,6 +150,96 @@
             min-height: 100px;
         }
 
+        /* 3. 정보 모달 스타일 (급식, 시간표, 설정) */
+        .info-modal {
+            width: 85%;
+            max-width: 350px;
+            background: #fff;
+            border: 4px solid #F39C12; 
+        }
+        /* 시간표 테마 */
+        .timetable-theme { border-color: #3498DB !important; }
+        /* 설정 테마 */
+        .settings-theme { border-color: #95a5a6 !important; }
+
+        .info-header {
+            background: #F39C12;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .timetable-theme .info-header { background: #3498DB; }
+        .settings-theme .info-header { background: #95a5a6; }
+
+        .info-body {
+            padding: 20px;
+            text-align: center;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .info-date {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            width: 100%;
+            padding-bottom: 5px;
+        }
+        .info-list {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #333;
+            word-break: keep-all;
+            width: 100%;
+        }
+        
+        /* 시간표 테이블 스타일 */
+        .timetable-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .timetable-row:last-child { border-bottom: none; }
+        .timetable-period { font-weight: bold; color: #3498DB; margin-right: 10px; }
+
+        /* 설정 입력 폼 스타일 */
+        .settings-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1.1rem;
+        }
+        .input-group input {
+            padding: 8px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            width: 60px;
+            text-align: center;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .cal-info {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #e67e22;
+            background: #fdf5e6;
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+
         .close-modal-btn {
             background: #ff8e8e;
             color: white;
@@ -200,28 +295,39 @@
     <!-- 게임 캔버스 -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- [수정됨] 게임 내 UI: 상단 중앙 배열 -->
+    <!-- 게임 내 UI -->
     <div id="game-ui">
-        <!-- 1. 외부 링크 4개 -->
+        <!-- 1. 외부 링크: 학교 홈페이지 -->
         <div class="icon-btn" onclick="openLink('SCHOOL')" title="학교 홈페이지">
             <img src="images/icon1.png" alt="학교" onerror="this.style.display='none'; this.parentNode.innerText='🏫'">
         </div>
+        <!-- 2. 외부 링크: 앨범 -->
         <div class="icon-btn" onclick="openLink('ALBUM')" title="추억 앨범">
             <img src="images/icon2.png" alt="앨범" onerror="this.style.display='none'; this.parentNode.innerText='📷'">
         </div>
-        <div class="icon-btn" onclick="openLink('ROLLING')" title="롤링 페이퍼">
-            <img src="images/icon3.png" alt="롤링페이퍼" onerror="this.style.display='none'; this.parentNode.innerText='📝'">
-        </div>
-        <div class="icon-btn" onclick="openLink('INSTA')" title="우리반 인스타">
-            <img src="images/icon4.png" alt="인스타" onerror="this.style.display='none'; this.parentNode.innerText='💬'">
+        
+        <!-- 3. 시간표 -->
+        <div class="icon-btn" onclick="openTimetable()" title="우리반 시간표">
+            <img src="images/icon3.png" alt="시간표" onerror="this.style.display='none'; this.parentNode.innerText='📅'">
         </div>
         
-        <!-- 2. 핵심 기능 2개 (구분선 없이 이어짐) -->
+        <!-- 4. 오늘의 식단 -->
+        <div class="icon-btn" onclick="openLunch()" title="오늘의 식단">
+            <img src="images/icon4.png" alt="식단" onerror="this.style.display='none'; this.parentNode.innerText='🍱'">
+        </div>
+        
+        <!-- 5. 학급 일기 -->
         <div class="icon-btn" onclick="openDiary()" title="학급 일기" style="background-color: #ffeaa7;">
             <img src="images/icon5.png" alt="일기" onerror="this.style.display='none'; this.parentNode.innerText='📖'">
         </div>
+        <!-- 6. 추억 영상 -->
         <div class="icon-btn" onclick="openVideo()" title="추억 영상" style="background-color: #74b9ff;">
             <img src="images/icon6.png" alt="영상" onerror="this.style.display='none'; this.parentNode.innerText='📺'">
+        </div>
+        
+        <!-- [추가됨] 설정 버튼 -->
+        <div class="icon-btn" onclick="openSettings()" title="설정" style="background-color: #ecf0f1;">
+            <span class="icon-text">⚙️</span>
         </div>
     </div>
 
@@ -253,6 +359,56 @@
             <button class="close-modal-btn" onclick="closeModal()">덮기</button>
         </div>
 
+        <!-- 급식 창 -->
+        <div id="lunch-box" class="modal-base info-modal" onclick="event.stopPropagation()">
+            <div class="info-header">🍱 오늘의 옥정중 급식</div>
+            <div class="info-body">
+                <div id="lunch-date" class="info-date">날짜 로딩중...</div>
+                <div id="lunch-menu" class="info-list">
+                    맛있는 급식을 불러오는 중입니다...<br>
+                    (주말/공휴일은 급식이 없어요!)
+                </div>
+                <div id="lunch-cal" class="cal-info"></div>
+            </div>
+            <div style="padding: 0 20px 20px;">
+                <button class="close-modal-btn" onclick="closeModal()">잘 먹겠습니다!</button>
+            </div>
+        </div>
+
+        <!-- 시간표 창 -->
+        <div id="timetable-box" class="modal-base info-modal timetable-theme" onclick="event.stopPropagation()">
+            <div class="info-header" id="timetable-header">📅 시간표</div>
+            <div class="info-body">
+                <div id="timetable-date" class="info-date">날짜 로딩중...</div>
+                <div id="timetable-list" class="info-list" style="text-align: left;">
+                    시간표를 불러오는 중입니다...
+                </div>
+            </div>
+            <div style="padding: 0 20px 20px;">
+                <button class="close-modal-btn" style="background-color: #3498DB; box-shadow: 0 4px 0 #2980B9;" onclick="closeModal()">확인</button>
+            </div>
+        </div>
+
+        <!-- [추가됨] 설정 창 -->
+        <div id="settings-box" class="modal-base info-modal settings-theme" onclick="event.stopPropagation()">
+            <div class="info-header">⚙️ 학급 설정</div>
+            <div class="info-body">
+                <div class="settings-form">
+                    <div class="input-group">
+                        <label for="input-grade">학년</label>
+                        <input type="number" id="input-grade" value="2" min="1" max="3">
+                    </div>
+                    <div class="input-group">
+                        <label for="input-class">반</label>
+                        <input type="number" id="input-class" value="5" min="1" max="15">
+                    </div>
+                </div>
+            </div>
+            <div style="padding: 0 20px 20px;">
+                <button class="close-modal-btn" style="background-color: #95a5a6; box-shadow: 0 4px 0 #7f8c8d;" onclick="saveSettings()">저장</button>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -273,10 +429,9 @@
             },
 
             LINKS: {
+                // [수정됨] 학교 홈페이지 링크 변경
                 SCHOOL: "https://okjeong-m.goedy.kr/okjeong-m/main.do",
                 ALBUM: "https://photos.google.com",
-                ROLLING: "https://www.notion.so",
-                INSTA: "https://www.instagram.com"
             },
 
             YOUTUBE_URL: "https://www.youtube.com/embed/FEI_imQ1Eaw?playsinline=1",
@@ -303,15 +458,34 @@
         
         const videoBox = document.getElementById('video-box');
         const diaryBox = document.getElementById('diary-box');
+        const lunchBox = document.getElementById('lunch-box');
+        const timetableBox = document.getElementById('timetable-box');
+        const settingsBox = document.getElementById('settings-box'); // 설정 박스
+        
         const diaryText = document.getElementById('diary-text');
         const youtubeFrame = document.getElementById('youtube-frame');
+
+        // 급식/시간표 관련 요소
+        const lunchDateEl = document.getElementById('lunch-date');
+        const lunchMenuEl = document.getElementById('lunch-menu');
+        const lunchCalEl = document.getElementById('lunch-cal');
+        const timetableDateEl = document.getElementById('timetable-date');
+        const timetableListEl = document.getElementById('timetable-list');
+        const timetableHeaderEl = document.getElementById('timetable-header');
+
+        // 학교 코드 전역 변수 (캐싱용)
+        let CACHED_SD_SCHUL_CODE = null;
+        const ATPT_OFCDC_SC_CODE = "J10"; // 경기도교육청
+
+        // [추가됨] 현재 학년/반 설정 (기본값)
+        let currentGrade = 2;
+        let currentClass = 5;
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
         const MALE_COUNT = 17; 
         const FEMALE_COUNT = 15;
-        // [수정됨] 캐릭터 크기 70% 축소 (60px -> 42px)
         const CHAR_HEIGHT = 42; 
 
         let currentTimePhase = 'day';
@@ -351,7 +525,7 @@
             startGame();
         }
 
-        // --- 학생 클래스 (기존 로직 유지) ---
+        // --- 학생 클래스 ---
         class Student {
             constructor(gender) {
                 this.gender = gender;
@@ -385,13 +559,12 @@
             }
 
             update() {
-                if (this.width === 0) {
-                    if (this.walkFrames[0] && this.walkFrames[0].width > 0) {
-                        const ratio = this.walkFrames[0].width / this.walkFrames[0].height;
-                        this.width = this.height * ratio;
-                    } else {
-                        this.width = this.height * 0.6;
-                    }
+                const currentImg = this.currentFrames[this.frameIndex];
+                if (currentImg && currentImg.width > 0) {
+                    const ratio = currentImg.width / currentImg.height;
+                    this.width = this.height * ratio;
+                } else if (this.width === 0) {
+                    this.width = this.height * 0.6; 
                 }
 
                 if (this.state === 'pick') {
@@ -591,15 +764,155 @@
             }
         }
 
+        // 공통 학교 코드 가져오기 함수
+        async function getSchoolCode() {
+            if (CACHED_SD_SCHUL_CODE) return CACHED_SD_SCHUL_CODE;
+            
+            const SCHOOL_NAME = "옥정중학교";
+            const schoolUrl = `https://open.neis.go.kr/hub/schoolInfo?Type=json&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SCHUL_NM=${encodeURIComponent(SCHOOL_NAME)}`;
+            
+            const schoolRes = await fetch(schoolUrl);
+            const schoolData = await schoolRes.json();
+
+            if (schoolData.schoolInfo && schoolData.schoolInfo[1].row.length > 0) {
+                CACHED_SD_SCHUL_CODE = schoolData.schoolInfo[1].row[0].SD_SCHUL_CODE;
+                return CACHED_SD_SCHUL_CODE;
+            } else {
+                throw new Error("학교 정보를 찾을 수 없습니다.");
+            }
+        }
+
+        // [추가됨] 설정 창 열기
+        window.openSettings = function() {
+            closeModal();
+            // 현재 설정된 값을 입력창에 표시
+            document.getElementById('input-grade').value = currentGrade;
+            document.getElementById('input-class').value = currentClass;
+            settingsBox.style.display = 'flex';
+            modalOverlay.style.display = 'flex';
+        }
+
+        // [추가됨] 설정 저장하기
+        window.saveSettings = function() {
+            const gradeVal = document.getElementById('input-grade').value;
+            const classVal = document.getElementById('input-class').value;
+            
+            if (gradeVal && classVal) {
+                currentGrade = gradeVal;
+                currentClass = classVal;
+                alert(`시간표가 ${currentGrade}학년 ${currentClass}반으로 설정되었습니다.`);
+                
+                // 문서 제목 업데이트 (선택사항)
+                document.title = `${currentGrade}학년 ${currentClass}반의 추억`;
+                
+                closeModal();
+            } else {
+                alert("학년과 반을 올바르게 입력해주세요.");
+            }
+        }
+
+        // [수정됨] 시간표 정보 가져오기 (설정된 학년/반 사용)
+        window.openTimetable = async function() {
+            closeModal(); 
+            timetableBox.style.display = 'flex';
+            modalOverlay.style.display = 'flex';
+
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const yyyymmdd = `${year}${month}${day}`;
+
+            // 제목에 설정된 학년/반 표시
+            timetableHeaderEl.innerText = `📅 ${currentGrade}학년 ${currentClass}반 시간표`;
+            timetableDateEl.innerText = `${year}년 ${month}월 ${day}일`;
+            timetableListEl.innerHTML = "시간표를 불러오는 중입니다...";
+
+            try {
+                const sdSchulCode = await getSchoolCode();
+                
+                // 설정된 학년/반 변수 사용
+                const GRADE = currentGrade;
+                const CLASS_NM = currentClass;
+                
+                const simpleTimeUrl = `https://open.neis.go.kr/hub/misTimetable?Type=json&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE=${sdSchulCode}&ALL_TI_YMD=${yyyymmdd}&GRADE=${GRADE}&CLASS_NM=${CLASS_NM}`;
+
+                const timeRes = await fetch(simpleTimeUrl);
+                const timeData = await timeRes.json();
+
+                if (timeData.misTimetable) {
+                    let html = "";
+                    timeData.misTimetable[1].row.forEach(row => {
+                        html += `
+                        <div class="timetable-row">
+                            <span class="timetable-period">${row.PERIO}교시</span>
+                            <span>${row.ITRT_CNTNT}</span>
+                        </div>`;
+                    });
+                    timetableListEl.innerHTML = html;
+                } else {
+                    timetableListEl.innerHTML = "오늘은 시간표 정보가 없습니다.<br>(주말 또는 공휴일)";
+                }
+
+            } catch(err) {
+                console.error(err);
+                timetableListEl.innerHTML = "시간표를 불러오지 못했습니다.<br>잠시 후 다시 시도해주세요.";
+            }
+        }
+
+        // 급식 정보 가져오기
+        window.openLunch = async function() {
+            closeModal();
+            lunchBox.style.display = 'flex';
+            modalOverlay.style.display = 'flex';
+
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const yyyymmdd = `${year}${month}${day}`;
+            
+            lunchDateEl.innerText = `${year}년 ${month}월 ${day}일 식단`;
+            lunchMenuEl.innerHTML = "🍱 맛있는 급식을<br>불러오는 중입니다...";
+            lunchCalEl.style.display = 'none';
+
+            try {
+                const sdSchulCode = await getSchoolCode();
+
+                const mealUrl = `https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE=${sdSchulCode}&MLSV_YMD=${yyyymmdd}`;
+                const mealRes = await fetch(mealUrl);
+                const mealData = await mealRes.json();
+
+                if (mealData.mealServiceDietInfo) {
+                    const row = mealData.mealServiceDietInfo[1].row[0];
+                    let cleanMenu = row.DDISH_NM.replace(/[0-9\.]/g, "").replace(/\(\)/g, "").replace(/\*/g,"");
+                    cleanMenu = cleanMenu.replace(/<br\/>/g, "<br>");
+                    
+                    lunchMenuEl.innerHTML = cleanMenu;
+                    
+                    if (row.CAL_INFO) {
+                        lunchCalEl.innerText = row.CAL_INFO;
+                        lunchCalEl.style.display = 'inline-block';
+                    }
+                } else {
+                    lunchMenuEl.innerHTML = "오늘은 급식이 없습니다.<br>(주말 또는 공휴일)";
+                }
+
+            } catch (err) {
+                console.error(err);
+                lunchMenuEl.innerHTML = "급식 정보를 가져오지 못했습니다.";
+            }
+        }
+
         window.openVideo = function() {
+            closeModal();
             videoBox.style.display = 'flex';
-            diaryBox.style.display = 'none';
             modalOverlay.style.display = 'flex';
             youtubeFrame.src = CONFIG.YOUTUBE_URL;
         }
 
         window.openDiary = function() {
-            videoBox.style.display = 'none';
+            closeModal();
             diaryBox.style.display = 'flex';
             modalOverlay.style.display = 'flex';
             const entry = CONFIG.DIARY_ENTRIES[Math.floor(Math.random() * CONFIG.DIARY_ENTRIES.length)];
@@ -607,8 +920,15 @@
         }
 
         window.closeModal = function() {
-            youtubeFrame.src = ""; 
+            // 모든 모달 닫기 및 초기화
+            videoBox.style.display = 'none';
+            diaryBox.style.display = 'none';
+            lunchBox.style.display = 'none';
+            timetableBox.style.display = 'none';
+            settingsBox.style.display = 'none'; // 설정 창 닫기 추가
             modalOverlay.style.display = 'none';
+            
+            youtubeFrame.src = ""; 
         }
 
         canvas.addEventListener('mousedown', handleInput);
