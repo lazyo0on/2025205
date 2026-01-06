@@ -62,6 +62,7 @@
             filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
         }
         
+        /* 이미지가 없을 때 대체 텍스트 스타일 */
         .icon-text {
             font-size: 2.0rem; 
             filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
@@ -71,16 +72,16 @@
             transform: scale(0.9);
         }
         
-        /* [수정됨] 말풍선 날씨 위젯 스타일 */
+        /* 말풍선 날씨 위젯 스타일 */
         #weather-box {
             position: absolute;
-            top: 26%; /* 상단 30% 지점 */
+            top: 40%; /* 상단 40% 지점 */
             left: 50%;
             transform: translate(-50%, -50%);
             
             width: 640px; 
             max-width: 90%; 
-            aspect-ratio: 2 / 1.6; /* 세로 길이를 40% 늘림 (기존 2/1 -> 2/1.6) */
+            aspect-ratio: 2 / 1.6; /* 세로 비율 확대 */
             
             background-image: url('images/chatballon.png');
             background-size: 100% 100%;
@@ -110,7 +111,7 @@
             font-size: 1.4rem; 
             font-weight: bold;
             color: #333;
-            margin-bottom: 2px;
+            margin-bottom: 5px;
             white-space: nowrap;
         }
         
@@ -119,7 +120,7 @@
             color: #d35400; 
             font-weight: bold;
             word-break: keep-all;
-            line-height: 1.2;
+            line-height: 1.3;
         }
         
         @media (max-width: 600px) {
@@ -344,45 +345,45 @@
         <div id="weather-line2" class="weather-line2"></div>
     </div>
 
-    <!-- 게임 내 UI -->
+    <!-- 게임 내 UI: 아이콘 순서 재배치 -->
     <div id="game-ui">
-        <!-- 1. 추억 영상 (기존 icon6) -->
+        <!-- 1. 추억 영상 (icon6) -->
         <div class="icon-btn" onclick="openVideo()" title="추억 영상">
             <img src="images/icon6.png" alt="영상" onerror="this.style.display='none'; this.parentNode.innerText='📺'">
         </div>
 
-        <!-- 2. 학급 일기 (기존 icon5) -->
+        <!-- 2. 학급 일기 (icon5) -->
         <div class="icon-btn" onclick="openDiary()" title="학급 일기">
             <img src="images/icon5.png" alt="일기" onerror="this.style.display='none'; this.parentNode.innerText='📖'">
         </div>
 
-        <!-- 3. 학교 홈페이지 (기존 icon1) -->
+        <!-- 3. 학교 홈페이지 (icon1) -->
         <div class="icon-btn" onclick="openLink('SCHOOL')" title="학교 홈페이지">
             <img src="images/icon1.png" alt="학교" onerror="this.style.display='none'; this.parentNode.innerText='🏫'">
         </div>
 
-        <!-- 4. 시간표 (기존 icon3) -->
+        <!-- 4. 시간표 (icon3) -->
         <div class="icon-btn" onclick="openTimetable()" title="우리반 시간표">
             <img src="images/icon3.png" alt="시간표" onerror="this.style.display='none'; this.parentNode.innerText='📅'">
         </div>
 
-        <!-- 5. 오늘의 식단 (기존 icon4) -->
+        <!-- 5. 오늘의 식단 (icon4) -->
         <div class="icon-btn" onclick="openLunch()" title="오늘의 식단">
             <img src="images/icon4.png" alt="식단" onerror="this.style.display='none'; this.parentNode.innerText='🍱'">
         </div>
 
-        <!-- 6. 추억 앨범 (기존 icon2) -->
+        <!-- 6. 추억 앨범 (icon2) -->
         <div class="icon-btn" onclick="openLink('ALBUM')" title="추억 앨범">
             <img src="images/icon2.png" alt="앨범" onerror="this.style.display='none'; this.parentNode.innerText='📷'">
         </div>
         
-        <!-- 7. 설정 버튼 (New icon7) -->
+        <!-- 7. 설정 버튼 (icon7) -->
         <div class="icon-btn" onclick="openSettings()" title="설정">
             <img src="images/icon7.png" alt="설정" onerror="this.style.display='none'; this.parentNode.innerText='⚙️'">
         </div>
     </div>
 
-    <!-- 말풍선 -->
+    <!-- 말풍선 (캐릭터 대사) -->
     <div id="bubble" class="bubble">안녕!</div>
 
     <!-- 모달 오버레이 -->
@@ -469,7 +470,7 @@
         const CONFIG = {
             IMAGE_FOLDER: "images/",
             
-            // [수정됨] 캐릭터 이미지 추가
+            // 캐릭터 이미지 목록
             MALE_FRAMES: [
                 "boy1.png", "boy2.png", "boy3.png",
                 "boy4.png", "boy5.png", "boy6.png",
@@ -589,7 +590,7 @@
             startGame();
         }
 
-        // [수정됨] 날씨 및 옷차림 추천 로직
+        // 날씨 및 옷차림 추천 로직
         async function fetchWeather() {
             const today = new Date();
             const month = today.getMonth() + 1;
@@ -611,7 +612,7 @@
                     // Line 1: 날짜와 기온
                     weatherLine1El.innerText = `${month}월 ${day}일, 최저 ${min}도 / 최고 ${max}도`;
                     
-                    // Line 2: 옷차림 추천 (평균기온 기준 단순화)
+                    // Line 2: 옷차림 추천
                     const avgTemp = (min + max) / 2;
                     let clothMsg = "";
 
@@ -642,13 +643,20 @@
             constructor(gender) {
                 this.gender = gender;
                 
-                // [수정됨] 전체 프레임 목록에서 3개 단위로 랜덤 선택하여 할당
+                // 캐릭터 이미지 세트 랜덤 배정
                 const allFrames = (gender === 'male') ? assets.male : assets.female;
+                // 이미지가 3장 단위로 세트가 된다고 가정 (예: 9장이면 3세트)
+                // 만약 이미지가 부족하면 에러나지 않도록 처리 필요하지만 여기선 입력값 신뢰
                 const setCounts = Math.floor(allFrames.length / 3);
-                const setIdx = Math.floor(Math.random() * setCounts);
-                const startIdx = setIdx * 3;
+                // 세트가 없으면(0) 전체 다 씀, 있으면 랜덤 선택
+                if (setCounts > 0) {
+                    const setIdx = Math.floor(Math.random() * setCounts);
+                    const startIdx = setIdx * 3;
+                    this.walkFrames = allFrames.slice(startIdx, startIdx + 3);
+                } else {
+                    this.walkFrames = allFrames;
+                }
                 
-                this.walkFrames = allFrames.slice(startIdx, startIdx + 3);
                 this.pickFrames = (gender === 'female') ? assets.femalePick : [];
                 
                 this.state = 'walk';
@@ -662,7 +670,12 @@
                 const maxY = canvas.height * 0.95 - this.height;
                 
                 this.x = Math.random() * canvas.width;
-                this.y = minY + Math.random() * (maxY - minY);
+                // maxY가 minY보다 작을 경우 방어
+                if (maxY > minY) {
+                    this.y = minY + Math.random() * (maxY - minY);
+                } else {
+                    this.y = minY;
+                }
                 
                 this.speedBase = (1 + Math.random()) * 0.33; 
                 this.vx = (Math.random() - 0.5) * this.speedBase;
@@ -790,6 +803,7 @@
                 if (isImgLoaded) {
                     ctx.drawImage(currentImg, this.x, this.y, this.width, this.height);
                 } else {
+                    // 이미지 없을 때 미리보기용 박스
                     ctx.fillStyle = (this.gender === 'male') ? '#4A90E2' : '#FF6B6B';
                     ctx.fillRect(this.x, this.y, this.width, this.height);
                     
@@ -1114,5 +1128,3 @@
     </script>
 </body>
 </html>
-
-
