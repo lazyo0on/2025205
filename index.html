@@ -9,7 +9,7 @@
     <style>
         :root {
             /* 부드러운 파스텔 톤 테마 */
-            --btn-bg: rgba(255, 255, 255, 0.8);
+            --btn-bg: rgba(255, 255, 255, 0.9);
             --btn-border: 3px solid #6d5f5f;
             --text-color: #4a4a4a;
         }
@@ -19,7 +19,7 @@
             overflow: hidden;
             font-family: 'NeoDunggeunmo', sans-serif;
             background-color: #333;
-            touch-action: none;
+            touch-action: none; /* 모바일 터치 제스처 방지 */
         }
 
         canvas {
@@ -27,12 +27,12 @@
             image-rendering: pixelated;
         }
 
-        /* 로딩 레이어 (심플하고 감성적인 스타일) */
+        /* 로딩 레이어 */
         #loading-layer {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: #fdf6e3; /* 따뜻한 미색 배경 */
+            background: #fdf6e3;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -58,12 +58,15 @@
             50% { opacity: 0.5; }
         }
 
-        /* 게임 내 UI (우측 상단 메뉴) */
+        /* [수정됨] 게임 내 UI (버튼 목록) */
         #game-ui {
             position: absolute;
             top: 20px; right: 20px;
-            display: none; /* 로딩 완료 후 flex로 변경 */
-            gap: 15px;
+            display: none; /* 로딩 후 flex로 변경 */
+            flex-wrap: wrap; /* 버튼이 많으면 줄바꿈 */
+            justify-content: flex-end;
+            gap: 10px;
+            max-width: 300px; /* 모바일에서 너무 넓게 퍼지지 않도록 제한 */
             pointer-events: auto;
             z-index: 20;
         }
@@ -73,17 +76,22 @@
             height: 50px;
             background: var(--btn-bg);
             border: var(--btn-border);
-            border-radius: 15px; /* 둥글게 */
+            border-radius: 12px;
             font-size: 24px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.1s, background 0.2s;
-            backdrop-filter: blur(4px); /* 반투명 블러 효과 */
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2); /* 입체감 강화 */
+            transition: transform 0.1s, background 0.2s, margin-top 0.1s, box-shadow 0.1s;
+            backdrop-filter: blur(4px);
         }
-        .icon-btn:active { transform: scale(0.95); }
+        
+        /* 버튼 클릭 효과 (눌리는 느낌) */
+        .icon-btn:active { 
+            transform: translateY(4px); 
+            box-shadow: 0 0 0 rgba(0,0,0,0.2);
+        }
         .icon-btn:hover { background: #fff; }
 
         /* 모달 오버레이 */
@@ -91,8 +99,8 @@
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); /* 배경을 조금 더 밝게 */
-            backdrop-filter: blur(2px);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(3px);
             display: none;
             justify-content: center;
             align-items: center;
@@ -100,7 +108,7 @@
             pointer-events: auto;
         }
 
-        /* 공통 모달 스타일 (부드러운 느낌) */
+        /* 모달 기본 스타일 */
         .modal-base {
             background: #fff;
             border-radius: 20px;
@@ -108,7 +116,7 @@
             overflow: hidden;
             display: none;
             flex-direction: column;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             position: relative;
             animation: popUp 0.3s ease-out;
         }
@@ -122,7 +130,7 @@
         .phone-modal {
             width: 90%;
             max-width: 600px;
-            background: #000; /* 영상 배경은 검정 */
+            background: #000;
         }
 
         .video-container {
@@ -141,23 +149,23 @@
         .diary-modal {
             width: 85%;
             max-width: 400px;
-            padding: 30px;
-            background: #fffaf0; /* 종이 질감 색상 */
+            padding: 25px;
+            background: #fffaf0;
         }
         .diary-title {
             font-size: 1.4rem;
             color: #6d5f5f;
             border-bottom: 2px dashed #d4c4c4;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
             text-align: center;
         }
         .diary-content {
             font-size: 1.1rem;
-            line-height: 1.8;
+            line-height: 1.6;
             color: #4a4a4a;
             white-space: pre-wrap;
-            min-height: 120px;
+            min-height: 100px;
         }
 
         .close-modal-btn {
@@ -168,12 +176,16 @@
             font-family: inherit;
             font-size: 1.1rem;
             cursor: pointer;
-            margin-top: auto;
+            margin-top: 20px;
             width: 100%;
-            text-align: center;
-            transition: background 0.2s;
+            border-radius: 8px;
+            box-shadow: 0 4px 0 #e06c6c;
+            transition: transform 0.1s;
         }
-        .close-modal-btn:hover { background: #ff7676; }
+        .close-modal-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #e06c6c;
+        }
 
         /* 말풍선 */
         .bubble {
@@ -211,13 +223,23 @@
     <!-- 게임 캔버스 -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- 게임 내 UI (깔끔한 아이콘 버튼) -->
+    <!-- [수정됨] 게임 내 UI (6개의 기능 버튼) -->
     <div id="game-ui">
-        <div class="icon-btn" onclick="openDiary()" title="학급 일기">📖</div>
-        <div class="icon-btn" onclick="openVideo()" title="추억 영상">📺</div>
+        <!-- 1. 외부 링크 4개 -->
+        <div class="icon-btn" onclick="openLink('SCHOOL')" title="학교 홈페이지">🏫</div>
+        <div class="icon-btn" onclick="openLink('ALBUM')" title="추억 앨범">📷</div>
+        <div class="icon-btn" onclick="openLink('ROLLING')" title="롤링 페이퍼">📝</div>
+        <div class="icon-btn" onclick="openLink('INSTA')" title="우리반 인스타">💬</div>
+        
+        <!-- 구분 여백 (원하면 추가 가능) -->
+        <div style="flex-basis: 100%; height: 0;"></div> 
+
+        <!-- 2. 핵심 기능 2개 -->
+        <div class="icon-btn" onclick="openDiary()" title="학급 일기" style="background-color: #ffeaa7;">📖</div>
+        <div class="icon-btn" onclick="openVideo()" title="추억 영상" style="background-color: #74b9ff;">📺</div>
     </div>
 
-    <!-- 로딩 화면 (비밀번호 입력창 대신 사용) -->
+    <!-- 로딩 화면 -->
     <div id="loading-layer">
         <div class="loading-text">🏫 2학년 5반의 추억</div>
         <div class="loading-sub" id="loading-msg">추억을 불러오는 중...</div>
@@ -229,7 +251,7 @@
     <!-- 모달 오버레이 -->
     <div id="modal-overlay">
         
-        <!-- 1. 영상 창 -->
+        <!-- 영상 창 -->
         <div id="video-box" class="modal-base phone-modal" onclick="event.stopPropagation()">
             <div class="video-container">
                 <iframe 
@@ -244,11 +266,11 @@
             <button class="close-modal-btn" onclick="closeModal()">닫기</button>
         </div>
 
-        <!-- 2. 일기장 창 -->
+        <!-- 일기장 창 -->
         <div id="diary-box" class="modal-base diary-modal" onclick="event.stopPropagation()">
             <div class="diary-title">✨ 오늘의 기록</div>
             <div id="diary-text" class="diary-content">...</div>
-            <button class="close-modal-btn" style="margin-top: 20px;" onclick="closeModal()">덮기</button>
+            <button class="close-modal-btn" onclick="closeModal()">덮기</button>
         </div>
 
     </div>
@@ -258,9 +280,9 @@
         // [설정 구역]
         // =================================================================
         const CONFIG = {
-            // PASSWORD 설정 삭제됨 (자동 입장)
             IMAGE_FOLDER: "images/",
             
+            // 학생 이미지 파일명
             MALE_FRAMES: ["boy1.png", "boy2.png", "boy3.png"],
             FEMALE_FRAMES: ["girl1.png", "girl2.png", "girl3.png"],
             FEMALE_PICK_FRAMES: ["girl4.png", "girl5.png", "girl6.png"],
@@ -271,19 +293,30 @@
                 NIGHT: "bg_night.png"
             },
 
+            // [추가됨] 외부 링크 목록 (원하는 주소로 수정하세요)
+            LINKS: {
+                SCHOOL: "https://www.school.kr",       // 학교 홈페이지
+                ALBUM: "https://photos.google.com",    // 사진 앨범
+                ROLLING: "https://www.notion.so",      // 롤링 페이퍼
+                INSTA: "https://www.instagram.com"     // 인스타그램
+            },
+
+            // 유튜브 영상 URL
             YOUTUBE_URL: "https://www.youtube.com/embed/FEI_imQ1Eaw?playsinline=1",
 
+            // 캐릭터 대사 (클릭 시 나옴)
             TALKS: [
                 "안녕?", "오늘 급식 뭐지?", "숙제 했어?", 
                 "오늘 시간표 뭐야?", "체육 시간 기다려진다", 
                 "선생님 안녕하세요!", "우리 반 최고!", "졸려..."
             ],
 
+            // 추억 일기 목록
             DIARY_ENTRIES: [
                 "3월 4일\n새로운 친구들을 만났다. 다들 착해 보인다.",
                 "10월 2일\n체육대회! 우리 반이 (마음만은) 1등을 했다!",
                 "12월 10일\n오늘 시험을 봤다. 시험을 망해서 슬프다",
-                "12월 31일\n바스콘에 나갔다. 춤을 추는 우리 모습이 너무 웃겼다."
+                "12월 31일\n축제 날! 춤 추는 우리 모습이 너무 웃겼다."
             ]
         };
 
@@ -322,7 +355,7 @@
             
             img.onload = () => handleLoad();
             img.onerror = () => {
-                console.warn("이미지 로드 실패:", src);
+                // 이미지가 없을 때도 실행되도록 처리
                 handleLoad(); 
             };
             
@@ -337,7 +370,6 @@
             if (loadedCount === totalAssets) {
                 isLoaded = true;
                 loadingMsg.innerText = "입장 중...";
-                // 로딩 완료 시 자동으로 게임 시작
                 setTimeout(startGame, 500); 
             }
         }
@@ -354,7 +386,7 @@
 
         init();
 
-        // --- 학생 클래스 ---
+        // --- 학생 클래스 (기존 로직 유지) ---
         class Student {
             constructor(gender) {
                 this.gender = gender;
@@ -383,23 +415,27 @@
                 this.animTimer = 0;
                 this.animSpeed = 15 + Math.floor(Math.random() * 15);
                 
-                // 줍기 시퀀스: 4(서기) -> 5(구부림) -> 5(유지) -> 6(집음)
                 this.pickSequence = [0, 1, 1, 2];
                 this.pickSeqIndex = 0;
             }
 
             update() {
-                if (this.width === 0 && this.walkFrames[0] && this.walkFrames[0].width > 0) {
-                    const ratio = this.walkFrames[0].width / this.walkFrames[0].height;
-                    this.width = this.height * ratio;
+                // 이미지 로드 전/후 너비 처리
+                if (this.width === 0) {
+                    if (this.walkFrames[0] && this.walkFrames[0].width > 0) {
+                        const ratio = this.walkFrames[0].width / this.walkFrames[0].height;
+                        this.width = this.height * ratio;
+                    } else {
+                        this.width = this.height * 0.6;
+                    }
                 }
 
+                // 줍기 애니메이션
                 if (this.state === 'pick') {
                     this.animTimer++;
                     if (this.animTimer >= 20) { 
                         this.animTimer = 0;
                         this.pickSeqIndex++;
-                        
                         if (this.pickSeqIndex >= this.pickSequence.length) {
                             this.state = 'walk';
                             this.currentFrames = this.walkFrames;
@@ -412,6 +448,7 @@
                     return; 
                 }
 
+                // 랜덤 줍기 동작 트리거 (여학생 전용)
                 if (this.gender === 'female' && this.pickFrames.length > 0 && Math.random() < 0.002) {
                     this.state = 'pick';
                     this.currentFrames = this.pickFrames;
@@ -421,6 +458,7 @@
                     return;
                 }
 
+                // 이동 로직
                 if (this.targetX !== null && this.targetY !== null) {
                     const dx = this.targetX - this.x;
                     const dy = this.targetY - this.y;
@@ -447,7 +485,6 @@
                     if (this.y < canvas.height * 0.3 || this.y > canvas.height - this.height) {
                         this.vy *= -1;
                     }
-                    
                     if (Math.random() < 0.01) {
                         this.vx = (Math.random() - 0.5) * this.speedBase;
                         this.vy = (Math.random() - 0.5) * this.speedBase;
@@ -466,10 +503,11 @@
 
             draw() {
                 const currentImg = this.currentFrames[this.frameIndex];
-                if (!currentImg || currentImg.width === 0) return;
+                const isImgLoaded = currentImg && currentImg.width > 0;
 
                 ctx.save();
                 
+                // 시간대 필터
                 if (currentTimePhase === 'night') {
                     ctx.filter = 'brightness(60%) grayscale(20%)';
                 } else if (currentTimePhase === 'sunset') {
@@ -483,10 +521,25 @@
                     ctx.scale(-1, 1);
                     ctx.translate(-(this.x + this.width/2), -(this.y + this.height/2));
                 }
-                ctx.drawImage(currentImg, this.x, this.y, this.width, this.height);
+                
+                if (isImgLoaded) {
+                    ctx.drawImage(currentImg, this.x, this.y, this.width, this.height);
+                } else {
+                    // 미리보기용 대체 박스
+                    ctx.fillStyle = (this.gender === 'male') ? '#4A90E2' : '#FF6B6B';
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(this.x + 8, this.y + 10, 8, 8);
+                    ctx.fillRect(this.x + 22, this.y + 10, 8, 8);
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(this.x + 10, this.y + 12, 4, 4);
+                    ctx.fillRect(this.x + 24, this.y + 12, 4, 4);
+                }
                 
                 ctx.restore();
 
+                // 그림자
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 ctx.fillRect(this.x + (this.width * 0.2), this.y + this.height - 5, this.width * 0.6, 5);
             }
@@ -514,7 +567,6 @@
             if (hour >= 6 && hour < 17) {
                 currentTimePhase = 'day';
                 bgImage = assets.bg.day;
-                bgColor = "#87CEEB"; 
             } else if (hour >= 17 && hour < 20) {
                 currentTimePhase = 'sunset';
                 bgImage = assets.bg.sunset;
@@ -531,7 +583,7 @@
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = 'rgba(0,0,0,0.1)';
-                ctx.fillRect(0, canvas.height * 0.3, canvas.width, canvas.height);
+                ctx.fillRect(0, canvas.height * 0.4, canvas.width, canvas.height);
             }
         }
 
@@ -546,18 +598,26 @@
             requestAnimationFrame(drawGame);
         }
 
-        // --- 기능 및 이벤트 ---
+        // --- 기능 및 이벤트 (업데이트됨) ---
 
-        // 자동 시작 함수 (로그인 과정 삭제됨)
         window.startGame = function() {
-            // 로딩 화면 숨기기
             loadingLayer.style.display = 'none';
-            // 게임 UI 표시
-            gameUI.style.display = 'flex';
+            gameUI.style.display = 'flex'; // 버튼 UI 표시
             
             createStudents();
             isPlaying = true;
             drawGame();
+        }
+
+        // [추가됨] 외부 링크 열기 함수
+        window.openLink = function(key) {
+            const url = CONFIG.LINKS[key];
+            if (url) {
+                // 새 탭에서 열기
+                window.open(url, '_blank');
+            } else {
+                alert("링크가 설정되지 않았습니다.");
+            }
         }
 
         window.openVideo = function() {
@@ -580,6 +640,7 @@
             modalOverlay.style.display = 'none';
         }
 
+        // 캔버스 인터랙션 (터치 및 마우스)
         canvas.addEventListener('mousedown', handleInput);
         canvas.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
@@ -595,6 +656,7 @@
             const y = e.clientY - rect.top;
 
             let clickedStudent = null;
+            // 클릭된 학생 확인 (위에 있는 학생 우선)
             for (let i = students.length - 1; i >= 0; i--) {
                 if (students[i].isClicked(x, y)) {
                     clickedStudent = students[i];
@@ -607,6 +669,7 @@
                 showBubble(clickedStudent.x + clickedStudent.width/2, clickedStudent.y, talk);
             } else {
                 bubble.style.display = 'none';
+                // 빈 곳 클릭 시 모든 학생 이동
                 students.forEach(s => {
                     s.targetX = x + (Math.random() - 0.5) * 200;
                     s.targetY = y + (Math.random() - 0.5) * 100;
