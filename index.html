@@ -71,19 +71,16 @@
             transform: scale(0.9);
         }
         
-        /* [수정됨] 말풍선 날씨 위젯 스타일 */
+        /* 말풍선 날씨 위젯 스타일 */
         #weather-box {
             position: absolute;
-            top: 30%; /* 상단 30% 지점으로 이동 */
+            top: 30%; /* 상단 30% 지점 */
             left: 50%;
             transform: translate(-50%, -50%);
             
-            /* 크기 2배 확대 및 반응형 처리 */
-            /* PC 기준 약 640px, 모바일에서는 화면 너비의 90%로 자동 축소 */
             width: 640px; 
             max-width: 100%; 
-            aspect-ratio: 2 / 1; /* 이미지 비율 유지 (찌그러짐 방지) */
-            /* 높이는 너비에 맞춰 자동 조절됨 */
+            aspect-ratio: 2 / 1; 
             
             background-image: url('images/chatballon.png');
             background-size: 100% 100%;
@@ -91,8 +88,7 @@
             background-position: center;
             background-color: transparent; 
             
-            /* 투명도 설정 (0.0 완전투명 ~ 1.0 불투명) */
-            opacity: 0.8; 
+            opacity: 0.9; 
             
             border: none;
             box-shadow: none;
@@ -106,7 +102,6 @@
             pointer-events: none;
             z-index: 10;
             
-            /* 말풍선 내부 여백 조정 (꼬리 위치 고려) */
             padding: 5% 8% 12% 8%; 
             box-sizing: border-box;
         }
@@ -115,7 +110,7 @@
             font-size: 1.4rem; 
             font-weight: bold;
             color: #333;
-            margin-bottom: 2px; /* 줄 간격 축소 */
+            margin-bottom: 2px;
             white-space: nowrap;
         }
         
@@ -124,10 +119,9 @@
             color: #d35400; 
             font-weight: bold;
             word-break: keep-all;
-            line-height: 1.2; /* 줄 간격 축소 */
+            line-height: 1.2;
         }
         
-        /* 모바일 화면 대응 폰트 사이즈 */
         @media (max-width: 600px) {
             .weather-line1 { font-size: 1.0rem; }
             .weather-line2 { font-size: 0.9rem; }
@@ -344,45 +338,47 @@
     <!-- 게임 캔버스 -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- [수정됨] 말풍선 날씨 위젯 -->
+    <!-- 말풍선 날씨 위젯 -->
     <div id="weather-box">
         <div id="weather-line1" class="weather-line1">날씨 정보 로딩 중...</div>
         <div id="weather-line2" class="weather-line2"></div>
     </div>
 
-    <!-- 게임 내 UI -->
+    <!-- [수정됨] 게임 내 UI: 아이콘 순서 재배치 및 icon7 추가 -->
     <div id="game-ui">
-        <!-- 1. 외부 링크: 학교 홈페이지 -->
+        <!-- 1. 추억 영상 (기존 icon6) -->
+        <div class="icon-btn" onclick="openVideo()" title="추억 영상">
+            <img src="images/icon6.png" alt="영상" onerror="this.style.display='none'; this.parentNode.innerText='📺'">
+        </div>
+
+        <!-- 2. 학급 일기 (기존 icon5) -->
+        <div class="icon-btn" onclick="openDiary()" title="학급 일기">
+            <img src="images/icon5.png" alt="일기" onerror="this.style.display='none'; this.parentNode.innerText='📖'">
+        </div>
+
+        <!-- 3. 학교 홈페이지 (기존 icon1) -->
         <div class="icon-btn" onclick="openLink('SCHOOL')" title="학교 홈페이지">
             <img src="images/icon1.png" alt="학교" onerror="this.style.display='none'; this.parentNode.innerText='🏫'">
         </div>
-        <!-- 2. 외부 링크: 앨범 -->
+
+        <!-- 4. 시간표 (기존 icon3) -->
+        <div class="icon-btn" onclick="openTimetable()" title="우리반 시간표">
+            <img src="images/icon3.png" alt="시간표" onerror="this.style.display='none'; this.parentNode.innerText='📅'">
+        </div>
+
+        <!-- 5. 오늘의 식단 (기존 icon4) -->
+        <div class="icon-btn" onclick="openLunch()" title="오늘의 식단">
+            <img src="images/icon4.png" alt="식단" onerror="this.style.display='none'; this.parentNode.innerText='🍱'">
+        </div>
+
+        <!-- 6. 추억 앨범 (기존 icon2) -->
         <div class="icon-btn" onclick="openLink('ALBUM')" title="추억 앨범">
             <img src="images/icon2.png" alt="앨범" onerror="this.style.display='none'; this.parentNode.innerText='📷'">
         </div>
         
-        <!-- 3. 시간표 -->
-        <div class="icon-btn" onclick="openTimetable()" title="우리반 시간표">
-            <img src="images/icon3.png" alt="시간표" onerror="this.style.display='none'; this.parentNode.innerText='📅'">
-        </div>
-        
-        <!-- 4. 오늘의 식단 -->
-        <div class="icon-btn" onclick="openLunch()" title="오늘의 식단">
-            <img src="images/icon4.png" alt="식단" onerror="this.style.display='none'; this.parentNode.innerText='🍱'">
-        </div>
-        
-        <!-- 5. 학급 일기 -->
-        <div class="icon-btn" onclick="openDiary()" title="학급 일기">
-            <img src="images/icon5.png" alt="일기" onerror="this.style.display='none'; this.parentNode.innerText='📖'">
-        </div>
-        <!-- 6. 추억 영상 -->
-        <div class="icon-btn" onclick="openVideo()" title="추억 영상">
-            <img src="images/icon6.png" alt="영상" onerror="this.style.display='none'; this.parentNode.innerText='📺'">
-        </div>
-        
-        <!-- 설정 버튼 -->
+        <!-- 7. 설정 버튼 (New icon7) -->
         <div class="icon-btn" onclick="openSettings()" title="설정">
-            <span class="icon-text">⚙️</span>
+            <img src="images/icon7.png" alt="설정" onerror="this.style.display='none'; this.parentNode.innerText='⚙️'">
         </div>
     </div>
 
@@ -1103,5 +1099,3 @@
     </script>
 </body>
 </html>
-
-
