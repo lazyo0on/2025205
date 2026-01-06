@@ -71,7 +71,7 @@
             transform: scale(0.9);
         }
         
-        /* 말풍선 날씨 위젯 스타일 */
+        /* [수정됨] 말풍선 날씨 위젯 스타일 */
         #weather-box {
             position: absolute;
             top: 30%; /* 상단 30% 지점 */
@@ -79,8 +79,8 @@
             transform: translate(-50%, -50%);
             
             width: 640px; 
-            max-width: 100%; 
-            aspect-ratio: 2 / 1; 
+            max-width: 90%; 
+            aspect-ratio: 2 / 1.4; /* 세로 길이를 40% 늘림 (기존 2/1 -> 2/1.4) */
             
             background-image: url('images/chatballon.png');
             background-size: 100% 100%;
@@ -344,7 +344,7 @@
         <div id="weather-line2" class="weather-line2"></div>
     </div>
 
-    <!-- [수정됨] 게임 내 UI: 아이콘 순서 재배치 및 icon7 추가 -->
+    <!-- 게임 내 UI -->
     <div id="game-ui">
         <!-- 1. 추억 영상 (기존 icon6) -->
         <div class="icon-btn" onclick="openVideo()" title="추억 영상">
@@ -469,8 +469,16 @@
         const CONFIG = {
             IMAGE_FOLDER: "images/",
             
-            MALE_FRAMES: ["boy1.png", "boy2.png", "boy3.png"],
-            FEMALE_FRAMES: ["girl1.png", "girl2.png", "girl3.png"],
+            // [수정됨] 캐릭터 이미지 추가
+            MALE_FRAMES: [
+                "boy1.png", "boy2.png", "boy3.png",
+                "boy4.png", "boy5.png", "boy6.png",
+                "boy7.png", "boy8.png", "boy9.png"
+            ],
+            FEMALE_FRAMES: [
+                "girl1.png", "girl2.png", "girl3.png",
+                "girl7.png", "girl8.png", "girl9.png"
+            ],
             FEMALE_PICK_FRAMES: ["girl4.png", "girl5.png", "girl6.png"],
             
             BG_IMAGES: {
@@ -633,7 +641,14 @@
         class Student {
             constructor(gender) {
                 this.gender = gender;
-                this.walkFrames = (gender === 'male') ? assets.male : assets.female;
+                
+                // [수정됨] 전체 프레임 목록에서 3개 단위로 랜덤 선택하여 할당
+                const allFrames = (gender === 'male') ? assets.male : assets.female;
+                const setCounts = Math.floor(allFrames.length / 3);
+                const setIdx = Math.floor(Math.random() * setCounts);
+                const startIdx = setIdx * 3;
+                
+                this.walkFrames = allFrames.slice(startIdx, startIdx + 3);
                 this.pickFrames = (gender === 'female') ? assets.femalePick : [];
                 
                 this.state = 'walk';
