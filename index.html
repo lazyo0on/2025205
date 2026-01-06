@@ -33,7 +33,7 @@
             display: flex;
             flex-wrap: nowrap; 
             justify-content: center; 
-            gap: 8px; /* 아이콘 간격 조정 */
+            gap: 8px; 
             pointer-events: auto;
             z-index: 20;
             padding: 0 10px;
@@ -44,11 +44,8 @@
             background: transparent;
             border: none;
             box-shadow: none;
-            
-            /* [수정됨] 아이콘 크기 확대 (40px -> 55px) */
             width: 55px;
             height: 55px;
-            
             display: flex;
             justify-content: center;
             align-items: center;
@@ -66,7 +63,7 @@
         }
         
         .icon-text {
-            font-size: 2.0rem; /* 텍스트 아이콘도 조금 키움 */
+            font-size: 2.0rem; 
             filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
         }
 
@@ -77,18 +74,25 @@
         /* [수정됨] 말풍선 날씨 위젯 스타일 */
         #weather-box {
             position: absolute;
-            top: 45%; 
+            top: 30%; /* 상단 30% 지점으로 이동 */
             left: 50%;
             transform: translate(-50%, -50%);
             
-            /* 말풍선 이미지 설정 */
-            width: 320px; /* 말풍선 이미지 비율에 맞춰 조정하세요 */
-            height: 160px;
+            /* 크기 2배 확대 및 반응형 처리 */
+            /* PC 기준 약 640px, 모바일에서는 화면 너비의 90%로 자동 축소 */
+            width: 640px; 
+            max-width: 90%; 
+            aspect-ratio: 2 / 1; /* 이미지 비율 유지 (찌그러짐 방지) */
+            /* 높이는 너비에 맞춰 자동 조절됨 */
+            
             background-image: url('images/chatballon.png');
             background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
-            background-color: transparent; /* 배경색 제거 */
+            background-color: transparent; 
+            
+            /* 투명도 설정 (0.0 완전투명 ~ 1.0 불투명) */
+            opacity: 0.9; 
             
             border: none;
             box-shadow: none;
@@ -102,25 +106,31 @@
             pointer-events: none;
             z-index: 10;
             
-            /* 말풍선 내부 텍스트 위치 조정을 위한 패딩 (이미지 모양에 따라 조절 필요) */
-            padding: 20px 30px 40px 30px; 
+            /* 말풍선 내부 여백 조정 (꼬리 위치 고려) */
+            padding: 5% 8% 12% 8%; 
             box-sizing: border-box;
         }
 
         .weather-line1 {
-            font-size: 1.1rem;
+            font-size: 1.4rem; 
             font-weight: bold;
             color: #333;
-            margin-bottom: 8px;
+            margin-bottom: 2px; /* 줄 간격 축소 */
             white-space: nowrap;
         }
         
         .weather-line2 {
-            font-size: 1.0rem;
-            color: #d35400; /* 강조색 */
+            font-size: 1.1rem; 
+            color: #d35400; 
             font-weight: bold;
             word-break: keep-all;
-            line-height: 1.4;
+            line-height: 1.2; /* 줄 간격 축소 */
+        }
+        
+        /* 모바일 화면 대응 폰트 사이즈 */
+        @media (max-width: 600px) {
+            .weather-line1 { font-size: 1.0rem; }
+            .weather-line2 { font-size: 0.9rem; }
         }
 
         /* 모달 오버레이 */
