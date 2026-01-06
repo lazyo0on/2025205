@@ -27,67 +27,44 @@
             image-rendering: pixelated;
         }
 
-        /* 로딩 레이어 */
-        #loading-layer {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #fdf6e3;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 50;
-            transition: opacity 0.5s;
-        }
-
-        .loading-text {
-            font-size: 1.5rem;
-            color: #555;
-            margin-bottom: 10px;
-            animation: blink 1.5s infinite;
-        }
-
-        .loading-sub {
-            font-size: 1rem;
-            color: #888;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* [수정됨] 게임 내 UI (버튼 목록) */
+        /* [수정됨] 게임 내 UI (버튼 목록) - 상단 중앙 정렬 */
         #game-ui {
             position: absolute;
-            top: 20px; right: 20px;
-            display: none; /* 로딩 후 flex로 변경 */
-            flex-wrap: wrap; /* 버튼이 많으면 줄바꿈 */
-            justify-content: flex-end;
-            gap: 10px;
-            max-width: 300px; /* 모바일에서 너무 넓게 퍼지지 않도록 제한 */
+            top: 20px; 
+            left: 0;
+            width: 100%; /* 전체 너비 사용 */
+            display: flex;
+            flex-wrap: wrap; /* 화면 좁으면 줄바꿈 */
+            justify-content: center; /* 중앙 정렬 */
+            gap: 12px; /* 아이콘 사이 간격 */
             pointer-events: auto;
             z-index: 20;
         }
 
         .icon-btn {
-            width: 50px;
-            height: 50px;
+            width: 45px; /* 아이콘 크기 살짝 조정 */
+            height: 45px;
             background: var(--btn-bg);
             border: var(--btn-border);
             border-radius: 12px;
-            font-size: 24px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2); /* 입체감 강화 */
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2); 
             transition: transform 0.1s, background 0.2s, margin-top 0.1s, box-shadow 0.1s;
             backdrop-filter: blur(4px);
+            overflow: hidden;
         }
         
-        /* 버튼 클릭 효과 (눌리는 느낌) */
+        /* 아이콘 이미지 스타일 */
+        .icon-btn img {
+            width: 75%;
+            height: 75%;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
         .icon-btn:active { 
             transform: translateY(4px); 
             box-shadow: 0 0 0 rgba(0,0,0,0.2);
@@ -223,26 +200,29 @@
     <!-- 게임 캔버스 -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- [수정됨] 게임 내 UI (6개의 기능 버튼) -->
+    <!-- [수정됨] 게임 내 UI: 상단 중앙 배열 -->
     <div id="game-ui">
         <!-- 1. 외부 링크 4개 -->
-        <div class="icon-btn" onclick="openLink('SCHOOL')" title="학교 홈페이지">🏫</div>
-        <div class="icon-btn" onclick="openLink('ALBUM')" title="추억 앨범">📷</div>
-        <div class="icon-btn" onclick="openLink('ROLLING')" title="롤링 페이퍼">📝</div>
-        <div class="icon-btn" onclick="openLink('INSTA')" title="우리반 인스타">💬</div>
+        <div class="icon-btn" onclick="openLink('SCHOOL')" title="학교 홈페이지">
+            <img src="images/icon1.png" alt="학교" onerror="this.style.display='none'; this.parentNode.innerText='🏫'">
+        </div>
+        <div class="icon-btn" onclick="openLink('ALBUM')" title="추억 앨범">
+            <img src="images/icon2.png" alt="앨범" onerror="this.style.display='none'; this.parentNode.innerText='📷'">
+        </div>
+        <div class="icon-btn" onclick="openLink('ROLLING')" title="롤링 페이퍼">
+            <img src="images/icon3.png" alt="롤링페이퍼" onerror="this.style.display='none'; this.parentNode.innerText='📝'">
+        </div>
+        <div class="icon-btn" onclick="openLink('INSTA')" title="우리반 인스타">
+            <img src="images/icon4.png" alt="인스타" onerror="this.style.display='none'; this.parentNode.innerText='💬'">
+        </div>
         
-        <!-- 구분 여백 (원하면 추가 가능) -->
-        <div style="flex-basis: 100%; height: 0;"></div> 
-
-        <!-- 2. 핵심 기능 2개 -->
-        <div class="icon-btn" onclick="openDiary()" title="학급 일기" style="background-color: #ffeaa7;">📖</div>
-        <div class="icon-btn" onclick="openVideo()" title="추억 영상" style="background-color: #74b9ff;">📺</div>
-    </div>
-
-    <!-- 로딩 화면 -->
-    <div id="loading-layer">
-        <div class="loading-text">🏫 2학년 5반의 추억</div>
-        <div class="loading-sub" id="loading-msg">추억을 불러오는 중...</div>
+        <!-- 2. 핵심 기능 2개 (구분선 없이 이어짐) -->
+        <div class="icon-btn" onclick="openDiary()" title="학급 일기" style="background-color: #ffeaa7;">
+            <img src="images/icon5.png" alt="일기" onerror="this.style.display='none'; this.parentNode.innerText='📖'">
+        </div>
+        <div class="icon-btn" onclick="openVideo()" title="추억 영상" style="background-color: #74b9ff;">
+            <img src="images/icon6.png" alt="영상" onerror="this.style.display='none'; this.parentNode.innerText='📺'">
+        </div>
     </div>
 
     <!-- 말풍선 -->
@@ -282,7 +262,6 @@
         const CONFIG = {
             IMAGE_FOLDER: "images/",
             
-            // 학생 이미지 파일명
             MALE_FRAMES: ["boy1.png", "boy2.png", "boy3.png"],
             FEMALE_FRAMES: ["girl1.png", "girl2.png", "girl3.png"],
             FEMALE_PICK_FRAMES: ["girl4.png", "girl5.png", "girl6.png"],
@@ -293,25 +272,21 @@
                 NIGHT: "bg_night.png"
             },
 
-            // [추가됨] 외부 링크 목록 (원하는 주소로 수정하세요)
             LINKS: {
-                SCHOOL: "https://www.school.kr",       // 학교 홈페이지
-                ALBUM: "https://photos.google.com",    // 사진 앨범
-                ROLLING: "https://www.notion.so",      // 롤링 페이퍼
-                INSTA: "https://www.instagram.com"     // 인스타그램
+                SCHOOL: "https://okjeong-m.goedy.kr/okjeong-m/main.do",
+                ALBUM: "https://photos.google.com",
+                ROLLING: "https://www.notion.so",
+                INSTA: "https://www.instagram.com"
             },
 
-            // 유튜브 영상 URL
             YOUTUBE_URL: "https://www.youtube.com/embed/FEI_imQ1Eaw?playsinline=1",
 
-            // 캐릭터 대사 (클릭 시 나옴)
             TALKS: [
                 "안녕?", "오늘 급식 뭐지?", "숙제 했어?", 
                 "오늘 시간표 뭐야?", "체육 시간 기다려진다", 
                 "선생님 안녕하세요!", "우리 반 최고!", "졸려..."
             ],
 
-            // 추억 일기 목록
             DIARY_ENTRIES: [
                 "3월 4일\n새로운 친구들을 만났다. 다들 착해 보인다.",
                 "10월 2일\n체육대회! 우리 반이 (마음만은) 1등을 했다!",
@@ -322,8 +297,6 @@
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const loadingLayer = document.getElementById('loading-layer');
-        const loadingMsg = document.getElementById('loading-msg');
         const gameUI = document.getElementById('game-ui');
         const modalOverlay = document.getElementById('modal-overlay');
         const bubble = document.getElementById('bubble');
@@ -338,7 +311,8 @@
 
         const MALE_COUNT = 17; 
         const FEMALE_COUNT = 15;
-        const CHAR_HEIGHT = 60; 
+        // [수정됨] 캐릭터 크기 70% 축소 (60px -> 42px)
+        const CHAR_HEIGHT = 42; 
 
         let currentTimePhase = 'day';
 
@@ -346,7 +320,6 @@
         const assets = { male: [], female: [], femalePick: [], bg: {} };
         let loadedCount = 0;
         let totalAssets = 0;
-        let isLoaded = false;
 
         function loadAsset(src, type, key = null) {
             totalAssets++;
@@ -354,10 +327,7 @@
             img.src = CONFIG.IMAGE_FOLDER + src;
             
             img.onload = () => handleLoad();
-            img.onerror = () => {
-                // 이미지가 없을 때도 실행되도록 처리
-                handleLoad(); 
-            };
+            img.onerror = () => handleLoad(); 
             
             if (type === 'male') assets.male.push(img);
             else if (type === 'female') assets.female.push(img);
@@ -367,11 +337,6 @@
 
         function handleLoad() {
             loadedCount++;
-            if (loadedCount === totalAssets) {
-                isLoaded = true;
-                loadingMsg.innerText = "입장 중...";
-                setTimeout(startGame, 500); 
-            }
         }
 
         function init() {
@@ -382,9 +347,9 @@
             loadAsset(CONFIG.BG_IMAGES.DAY, 'bg', 'day');
             loadAsset(CONFIG.BG_IMAGES.SUNSET, 'bg', 'sunset');
             loadAsset(CONFIG.BG_IMAGES.NIGHT, 'bg', 'night');
+            
+            startGame();
         }
-
-        init();
 
         // --- 학생 클래스 (기존 로직 유지) ---
         class Student {
@@ -420,7 +385,6 @@
             }
 
             update() {
-                // 이미지 로드 전/후 너비 처리
                 if (this.width === 0) {
                     if (this.walkFrames[0] && this.walkFrames[0].width > 0) {
                         const ratio = this.walkFrames[0].width / this.walkFrames[0].height;
@@ -430,7 +394,6 @@
                     }
                 }
 
-                // 줍기 애니메이션
                 if (this.state === 'pick') {
                     this.animTimer++;
                     if (this.animTimer >= 20) { 
@@ -448,7 +411,6 @@
                     return; 
                 }
 
-                // 랜덤 줍기 동작 트리거 (여학생 전용)
                 if (this.gender === 'female' && this.pickFrames.length > 0 && Math.random() < 0.002) {
                     this.state = 'pick';
                     this.currentFrames = this.pickFrames;
@@ -458,7 +420,6 @@
                     return;
                 }
 
-                // 이동 로직
                 if (this.targetX !== null && this.targetY !== null) {
                     const dx = this.targetX - this.x;
                     const dy = this.targetY - this.y;
@@ -507,7 +468,6 @@
 
                 ctx.save();
                 
-                // 시간대 필터
                 if (currentTimePhase === 'night') {
                     ctx.filter = 'brightness(60%) grayscale(20%)';
                 } else if (currentTimePhase === 'sunset') {
@@ -525,21 +485,19 @@
                 if (isImgLoaded) {
                     ctx.drawImage(currentImg, this.x, this.y, this.width, this.height);
                 } else {
-                    // 미리보기용 대체 박스
                     ctx.fillStyle = (this.gender === 'male') ? '#4A90E2' : '#FF6B6B';
                     ctx.fillRect(this.x, this.y, this.width, this.height);
                     
                     ctx.fillStyle = 'white';
-                    ctx.fillRect(this.x + 8, this.y + 10, 8, 8);
-                    ctx.fillRect(this.x + 22, this.y + 10, 8, 8);
+                    ctx.fillRect(this.x + (this.width*0.25), this.y + (this.height*0.25), this.width*0.2, this.height*0.2);
+                    ctx.fillRect(this.x + (this.width*0.65), this.y + (this.height*0.25), this.width*0.2, this.height*0.2);
                     ctx.fillStyle = 'black';
-                    ctx.fillRect(this.x + 10, this.y + 12, 4, 4);
-                    ctx.fillRect(this.x + 24, this.y + 12, 4, 4);
+                    ctx.fillRect(this.x + (this.width*0.3), this.y + (this.height*0.3), this.width*0.1, this.height*0.1);
+                    ctx.fillRect(this.x + (this.width*0.7), this.y + (this.height*0.3), this.width*0.1, this.height*0.1);
                 }
                 
                 ctx.restore();
 
-                // 그림자
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 ctx.fillRect(this.x + (this.width * 0.2), this.y + this.height - 5, this.width * 0.6, 5);
             }
@@ -578,7 +536,23 @@
             }
 
             if (bgImage && bgImage.width > 0) {
-                ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+                const imgRatio = bgImage.width / bgImage.height;
+                const canvasRatio = canvas.width / canvas.height;
+                let renderW, renderH, offsetX, offsetY;
+
+                if (canvasRatio > imgRatio) {
+                    renderW = canvas.width;
+                    renderH = canvas.width / imgRatio;
+                    offsetX = 0;
+                    offsetY = (canvas.height - renderH) / 2;
+                } else {
+                    renderH = canvas.height;
+                    renderW = canvas.height * imgRatio;
+                    offsetX = (canvas.width - renderW) / 2;
+                    offsetY = 0;
+                }
+                ctx.drawImage(bgImage, offsetX, offsetY, renderW, renderH);
+
             } else {
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -598,22 +572,19 @@
             requestAnimationFrame(drawGame);
         }
 
-        // --- 기능 및 이벤트 (업데이트됨) ---
+        // --- 기능 및 이벤트 ---
 
         window.startGame = function() {
-            loadingLayer.style.display = 'none';
-            gameUI.style.display = 'flex'; // 버튼 UI 표시
+            gameUI.style.display = 'flex';
             
             createStudents();
             isPlaying = true;
             drawGame();
         }
 
-        // [추가됨] 외부 링크 열기 함수
         window.openLink = function(key) {
             const url = CONFIG.LINKS[key];
             if (url) {
-                // 새 탭에서 열기
                 window.open(url, '_blank');
             } else {
                 alert("링크가 설정되지 않았습니다.");
@@ -640,7 +611,6 @@
             modalOverlay.style.display = 'none';
         }
 
-        // 캔버스 인터랙션 (터치 및 마우스)
         canvas.addEventListener('mousedown', handleInput);
         canvas.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
@@ -656,7 +626,6 @@
             const y = e.clientY - rect.top;
 
             let clickedStudent = null;
-            // 클릭된 학생 확인 (위에 있는 학생 우선)
             for (let i = students.length - 1; i >= 0; i--) {
                 if (students[i].isClicked(x, y)) {
                     clickedStudent = students[i];
@@ -669,7 +638,6 @@
                 showBubble(clickedStudent.x + clickedStudent.width/2, clickedStudent.y, talk);
             } else {
                 bubble.style.display = 'none';
-                // 빈 곳 클릭 시 모든 학생 이동
                 students.forEach(s => {
                     s.targetX = x + (Math.random() - 0.5) * 200;
                     s.targetY = y + (Math.random() - 0.5) * 100;
@@ -694,6 +662,8 @@
             canvas.height = window.innerHeight;
             if (isPlaying) requestAnimationFrame(drawGame);
         });
+
+        init();
 
     </script>
 </body>
