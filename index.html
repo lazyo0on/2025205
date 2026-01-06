@@ -8,9 +8,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Dalgona/neodgm/neodgm.css">
     <style>
         :root {
-            /* 부드러운 파스텔 톤 테마 */
-            --btn-bg: rgba(255, 255, 255, 0.9);
-            --btn-border: 3px solid #6d5f5f;
             --text-color: #4a4a4a;
         }
 
@@ -19,7 +16,7 @@
             overflow: hidden;
             font-family: 'NeoDunggeunmo', sans-serif;
             background-color: #333;
-            touch-action: none; /* 모바일 터치 제스처 방지 */
+            touch-action: none; 
         }
 
         canvas {
@@ -30,51 +27,101 @@
         /* 게임 내 UI (버튼 목록) - 상단 중앙 정렬 */
         #game-ui {
             position: absolute;
-            top: 20px; 
+            top: 15px; 
             left: 0;
-            width: 100%; /* 전체 너비 사용 */
+            width: 100%; 
             display: flex;
-            flex-wrap: wrap; /* 화면 좁으면 줄바꿈 */
-            justify-content: center; /* 중앙 정렬 */
-            gap: 12px; /* 아이콘 사이 간격 */
+            flex-wrap: nowrap; 
+            justify-content: center; 
+            gap: 8px; /* 아이콘 간격 조정 */
             pointer-events: auto;
             z-index: 20;
+            padding: 0 10px;
+            box-sizing: border-box;
         }
 
         .icon-btn {
-            width: 45px;
-            height: 45px;
-            background: var(--btn-bg);
-            border: var(--btn-border);
-            border-radius: 12px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            
+            /* [수정됨] 아이콘 크기 확대 (40px -> 55px) */
+            width: 55px;
+            height: 55px;
+            
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2); 
-            transition: transform 0.1s, background 0.2s, margin-top 0.1s, box-shadow 0.1s;
-            backdrop-filter: blur(4px);
-            overflow: hidden;
+            transition: transform 0.1s;
+            overflow: visible;
         }
         
-        /* 아이콘 이미지 스타일 */
         .icon-btn img {
-            width: 75%;
-            height: 75%;
+            width: 100%;
+            height: 100%;
             object-fit: contain;
             image-rendering: pixelated;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
         }
         
-        /* 텍스트 아이콘 (설정 등) */
         .icon-text {
-            font-size: 1.5rem;
+            font-size: 2.0rem; /* 텍스트 아이콘도 조금 키움 */
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
         }
 
         .icon-btn:active { 
-            transform: translateY(4px); 
-            box-shadow: 0 0 0 rgba(0,0,0,0.2);
+            transform: scale(0.9);
         }
-        .icon-btn:hover { background: #fff; }
+        
+        /* [수정됨] 말풍선 날씨 위젯 스타일 */
+        #weather-box {
+            position: absolute;
+            top: 45%; 
+            left: 50%;
+            transform: translate(-50%, -50%);
+            
+            /* 말풍선 이미지 설정 */
+            width: 320px; /* 말풍선 이미지 비율에 맞춰 조정하세요 */
+            height: 160px;
+            background-image: url('images/chatballon.png');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent; /* 배경색 제거 */
+            
+            border: none;
+            box-shadow: none;
+            backdrop-filter: none;
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+            
+            /* 말풍선 내부 텍스트 위치 조정을 위한 패딩 (이미지 모양에 따라 조절 필요) */
+            padding: 20px 30px 40px 30px; 
+            box-sizing: border-box;
+        }
+
+        .weather-line1 {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            white-space: nowrap;
+        }
+        
+        .weather-line2 {
+            font-size: 1.0rem;
+            color: #d35400; /* 강조색 */
+            font-weight: bold;
+            word-break: keep-all;
+            line-height: 1.4;
+        }
 
         /* 모달 오버레이 */
         #modal-overlay {
@@ -108,7 +155,6 @@
             to { transform: scale(1); opacity: 1; }
         }
 
-        /* 1. 영상 모달 */
         .phone-modal {
             width: 90%;
             max-width: 600px;
@@ -127,7 +173,6 @@
             width: 100%; height: 100%;
         }
 
-        /* 2. 일기장 모달 */
         .diary-modal {
             width: 85%;
             max-width: 400px;
@@ -150,16 +195,13 @@
             min-height: 100px;
         }
 
-        /* 3. 정보 모달 스타일 (급식, 시간표, 설정) */
         .info-modal {
             width: 85%;
             max-width: 350px;
             background: #fff;
             border: 4px solid #F39C12; 
         }
-        /* 시간표 테마 */
         .timetable-theme { border-color: #3498DB !important; }
-        /* 설정 테마 */
         .settings-theme { border-color: #95a5a6 !important; }
 
         .info-header {
@@ -198,7 +240,6 @@
             width: 100%;
         }
         
-        /* 시간표 테이블 스타일 */
         .timetable-row {
             display: flex;
             justify-content: space-between;
@@ -208,7 +249,6 @@
         .timetable-row:last-child { border-bottom: none; }
         .timetable-period { font-weight: bold; color: #3498DB; margin-right: 10px; }
 
-        /* 설정 입력 폼 스타일 */
         .settings-form {
             display: flex;
             flex-direction: column;
@@ -259,7 +299,6 @@
             box-shadow: 0 0 0 #e06c6c;
         }
 
-        /* 말풍선 */
         .bubble {
             position: absolute;
             background: rgba(255, 255, 255, 0.95);
@@ -295,6 +334,12 @@
     <!-- 게임 캔버스 -->
     <canvas id="gameCanvas"></canvas>
 
+    <!-- [수정됨] 말풍선 날씨 위젯 -->
+    <div id="weather-box">
+        <div id="weather-line1" class="weather-line1">날씨 정보 로딩 중...</div>
+        <div id="weather-line2" class="weather-line2"></div>
+    </div>
+
     <!-- 게임 내 UI -->
     <div id="game-ui">
         <!-- 1. 외부 링크: 학교 홈페이지 -->
@@ -317,16 +362,16 @@
         </div>
         
         <!-- 5. 학급 일기 -->
-        <div class="icon-btn" onclick="openDiary()" title="학급 일기" style="background-color: #ffeaa7;">
+        <div class="icon-btn" onclick="openDiary()" title="학급 일기">
             <img src="images/icon5.png" alt="일기" onerror="this.style.display='none'; this.parentNode.innerText='📖'">
         </div>
         <!-- 6. 추억 영상 -->
-        <div class="icon-btn" onclick="openVideo()" title="추억 영상" style="background-color: #74b9ff;">
+        <div class="icon-btn" onclick="openVideo()" title="추억 영상">
             <img src="images/icon6.png" alt="영상" onerror="this.style.display='none'; this.parentNode.innerText='📺'">
         </div>
         
-        <!-- [추가됨] 설정 버튼 -->
-        <div class="icon-btn" onclick="openSettings()" title="설정" style="background-color: #ecf0f1;">
+        <!-- 설정 버튼 -->
+        <div class="icon-btn" onclick="openSettings()" title="설정">
             <span class="icon-text">⚙️</span>
         </div>
     </div>
@@ -389,7 +434,7 @@
             </div>
         </div>
 
-        <!-- [추가됨] 설정 창 -->
+        <!-- 설정 창 -->
         <div id="settings-box" class="modal-base info-modal settings-theme" onclick="event.stopPropagation()">
             <div class="info-header">⚙️ 학급 설정</div>
             <div class="info-body">
@@ -429,7 +474,6 @@
             },
 
             LINKS: {
-                // [수정됨] 학교 홈페이지 링크 변경
                 SCHOOL: "https://okjeong-m.goedy.kr/okjeong-m/main.do",
                 ALBUM: "https://photos.google.com",
             },
@@ -460,7 +504,7 @@
         const diaryBox = document.getElementById('diary-box');
         const lunchBox = document.getElementById('lunch-box');
         const timetableBox = document.getElementById('timetable-box');
-        const settingsBox = document.getElementById('settings-box'); // 설정 박스
+        const settingsBox = document.getElementById('settings-box'); 
         
         const diaryText = document.getElementById('diary-text');
         const youtubeFrame = document.getElementById('youtube-frame');
@@ -473,11 +517,15 @@
         const timetableListEl = document.getElementById('timetable-list');
         const timetableHeaderEl = document.getElementById('timetable-header');
 
+        // 날씨 관련 요소
+        const weatherLine1El = document.getElementById('weather-line1');
+        const weatherLine2El = document.getElementById('weather-line2');
+
         // 학교 코드 전역 변수 (캐싱용)
         let CACHED_SD_SCHUL_CODE = null;
         const ATPT_OFCDC_SC_CODE = "J10"; // 경기도교육청
 
-        // [추가됨] 현재 학년/반 설정 (기본값)
+        // 현재 학년/반 설정 (기본값)
         let currentGrade = 2;
         let currentClass = 5;
 
@@ -522,7 +570,57 @@
             loadAsset(CONFIG.BG_IMAGES.SUNSET, 'bg', 'sunset');
             loadAsset(CONFIG.BG_IMAGES.NIGHT, 'bg', 'night');
             
+            fetchWeather();
+
             startGame();
+        }
+
+        // [수정됨] 날씨 및 옷차림 추천 로직
+        async function fetchWeather() {
+            const today = new Date();
+            const month = today.getMonth() + 1;
+            const day = today.getDate();
+            
+            // 양주시 옥정동 좌표
+            const lat = 37.823;
+            const lon = 127.094;
+            
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data && data.daily) {
+                    const min = Math.round(data.daily.temperature_2m_min[0]);
+                    const max = Math.round(data.daily.temperature_2m_max[0]);
+                    
+                    // Line 1: 날짜와 기온
+                    weatherLine1El.innerText = `${month}월 ${day}일, 최저 ${min}도 / 최고 ${max}도`;
+                    
+                    // Line 2: 옷차림 추천 (평균기온 기준 단순화)
+                    const avgTemp = (min + max) / 2;
+                    let clothMsg = "";
+
+                    if (avgTemp <= 5) {
+                        clothMsg = "롱패딩 입으세요! 🥶";
+                    } else if (avgTemp <= 11) {
+                        clothMsg = "가벼운 패딩이나 후리스 추천! 🧥";
+                    } else if (avgTemp <= 19) {
+                        clothMsg = "긴팔 교복이 딱이야 👔";
+                    } else if (avgTemp <= 26) {
+                        clothMsg = "반팔 교복 입고 가자 👕";
+                    } else {
+                        clothMsg = "너무 더워! 반팔&반바지! 🩳";
+                    }
+                    weatherLine2El.innerText = clothMsg;
+                    
+                } else {
+                    weatherLine1El.innerText = "날씨 정보 없음";
+                }
+            } catch (e) {
+                console.error("날씨 로드 실패:", e);
+                weatherLine1El.innerText = "날씨 로딩 실패";
+            }
         }
 
         // --- 학생 클래스 ---
@@ -538,8 +636,12 @@
                 this.width = 0; 
                 this.height = CHAR_HEIGHT;
 
+                // 초기 위치 Y 설정 (하단 40% ~ 5%)
+                const minY = canvas.height * 0.6;
+                const maxY = canvas.height * 0.95 - this.height;
+                
                 this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
+                this.y = minY + Math.random() * (maxY - minY);
                 
                 this.speedBase = (1 + Math.random()) * 0.33; 
                 this.vx = (Math.random() - 0.5) * this.speedBase;
@@ -616,9 +718,18 @@
                         this.vx *= -1;
                         this.facingRight = this.vx > 0;
                     }
-                    if (this.y < canvas.height * 0.3 || this.y > canvas.height - this.height) {
+                    
+                    const minY = canvas.height * 0.6; 
+                    const maxY = canvas.height * 0.95 - this.height;
+
+                    if (this.y < minY) {
+                        this.y = minY;
+                        this.vy *= -1;
+                    } else if (this.y > maxY) {
+                        this.y = maxY;
                         this.vy *= -1;
                     }
+                    
                     if (Math.random() < 0.01) {
                         this.vx = (Math.random() - 0.5) * this.speedBase;
                         this.vy = (Math.random() - 0.5) * this.speedBase;
@@ -749,7 +860,6 @@
 
         window.startGame = function() {
             gameUI.style.display = 'flex';
-            
             createStudents();
             isPlaying = true;
             drawGame();
@@ -764,7 +874,6 @@
             }
         }
 
-        // 공통 학교 코드 가져오기 함수
         async function getSchoolCode() {
             if (CACHED_SD_SCHUL_CODE) return CACHED_SD_SCHUL_CODE;
             
@@ -782,17 +891,14 @@
             }
         }
 
-        // [추가됨] 설정 창 열기
         window.openSettings = function() {
             closeModal();
-            // 현재 설정된 값을 입력창에 표시
             document.getElementById('input-grade').value = currentGrade;
             document.getElementById('input-class').value = currentClass;
             settingsBox.style.display = 'flex';
             modalOverlay.style.display = 'flex';
         }
 
-        // [추가됨] 설정 저장하기
         window.saveSettings = function() {
             const gradeVal = document.getElementById('input-grade').value;
             const classVal = document.getElementById('input-class').value;
@@ -801,17 +907,13 @@
                 currentGrade = gradeVal;
                 currentClass = classVal;
                 alert(`시간표가 ${currentGrade}학년 ${currentClass}반으로 설정되었습니다.`);
-                
-                // 문서 제목 업데이트 (선택사항)
                 document.title = `${currentGrade}학년 ${currentClass}반의 추억`;
-                
                 closeModal();
             } else {
                 alert("학년과 반을 올바르게 입력해주세요.");
             }
         }
 
-        // [수정됨] 시간표 정보 가져오기 (설정된 학년/반 사용)
         window.openTimetable = async function() {
             closeModal(); 
             timetableBox.style.display = 'flex';
@@ -823,7 +925,6 @@
             const day = String(today.getDate()).padStart(2, '0');
             const yyyymmdd = `${year}${month}${day}`;
 
-            // 제목에 설정된 학년/반 표시
             timetableHeaderEl.innerText = `📅 ${currentGrade}학년 ${currentClass}반 시간표`;
             timetableDateEl.innerText = `${year}년 ${month}월 ${day}일`;
             timetableListEl.innerHTML = "시간표를 불러오는 중입니다...";
@@ -831,7 +932,6 @@
             try {
                 const sdSchulCode = await getSchoolCode();
                 
-                // 설정된 학년/반 변수 사용
                 const GRADE = currentGrade;
                 const CLASS_NM = currentClass;
                 
@@ -860,7 +960,6 @@
             }
         }
 
-        // 급식 정보 가져오기
         window.openLunch = async function() {
             closeModal();
             lunchBox.style.display = 'flex';
@@ -920,14 +1019,12 @@
         }
 
         window.closeModal = function() {
-            // 모든 모달 닫기 및 초기화
             videoBox.style.display = 'none';
             diaryBox.style.display = 'none';
             lunchBox.style.display = 'none';
             timetableBox.style.display = 'none';
-            settingsBox.style.display = 'none'; // 설정 창 닫기 추가
+            settingsBox.style.display = 'none';
             modalOverlay.style.display = 'none';
-            
             youtubeFrame.src = ""; 
         }
 
@@ -958,9 +1055,17 @@
                 showBubble(clickedStudent.x + clickedStudent.width/2, clickedStudent.y, talk);
             } else {
                 bubble.style.display = 'none';
+                
+                let targetY = y + (Math.random() - 0.5) * 100;
+                const minY = canvas.height * 0.6;
+                const maxY = canvas.height * 0.95 - CHAR_HEIGHT;
+                
+                if (targetY < minY) targetY = minY;
+                if (targetY > maxY) targetY = maxY;
+
                 students.forEach(s => {
                     s.targetX = x + (Math.random() - 0.5) * 200;
-                    s.targetY = y + (Math.random() - 0.5) * 100;
+                    s.targetY = targetY; 
                 });
             }
         }
